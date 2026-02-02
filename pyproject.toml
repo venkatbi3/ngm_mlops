@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ngm-mlops"
+version = "0.1.0"
+description = "MLOps stack for NGM churn prediction and fraud detection models"
+authors = [
+    {name = "Databricks", email = "mlops@databricks.com"},
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "mlflow>=2.11.0",
+    "numpy>=1.23.0",
+    "pandas>=1.5.0",
+    "scikit-learn>=1.1.0",
+    "pyspark>=3.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
