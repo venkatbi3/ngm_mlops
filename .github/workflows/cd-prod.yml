@@ -1,0 +1,42 @@
+name: CD - Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_sha:
+        description: 'Git SHA to deploy (defaults to HEAD)'
+        required: false
+  push:
+    branches: [ prod ]
+
+env:
+  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
+
+jobs:
+  deploy-prod:
+    name: Deploy to Prod
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Databricks CLI (bundle)
+        uses: databricks/setup-cli@v0.4.0
+        with:
+          version: '1.6.1'
+
+      - name: Validate Databricks bundle
+        run: databricks bundle validate
+
+      - name: Deploy to Prod
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          GIT_SHA=${{ github.event.inputs.git_sha || github.sha }}
+          databricks bundle deploy -t prod --var="git_sha=${GIT_SHA}"
