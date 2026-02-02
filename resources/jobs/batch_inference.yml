@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    batch_inference:
+      name: ngm-batch-inference
+      schedule:
+        quartz_cron_expression: "0 0 10 * * ?"   # daily 10 AM
+        timezone_id: Australia/Sydney
+      tasks:
+        - task_key: score
+          spark_python_task:
+            python_file: src/pipelines/batch_inference.py
+            parameters:
+              - churn
+          new_cluster:
+            spark_version: 14.3.x-scala2.12
+            node_type_id: Standard_DS3_v2
+            num_workers: 2

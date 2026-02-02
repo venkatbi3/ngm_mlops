@@ -1,0 +1,10 @@
+resources:
+  jobs:
+    train_model:
+      name: ngm-train-model
+      tasks:
+        - task_key: train
+          spark_python_task:
+            python_file: src/pipelines/train.py
+            parameters:
+              - churn

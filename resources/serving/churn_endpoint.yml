@@ -1,0 +1,10 @@
+resources:
+  serving_endpoints:
+    churn-serving:
+      name: churn-serving
+      config:
+        served_models:
+          - model_name: ngm_churn_model
+            model_version: "Champion"
+            workload_size: Small
+            scale_to_zero_enabled: true

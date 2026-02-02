@@ -1,0 +1,23 @@
+model_key: churn
+registered_model_name: ngm_churn_model
+
+trainer_class: ChurnTrainer
+validator_class: ChurnValidator
+
+data:
+  features_table: ngm_prd_ml.features.customer_churn
+  label_col: churn_flag
+
+metrics:
+  auc_threshold: 0.75
+
+hyperparameters:
+  n_estimators: 300
+  max_depth: 10
+
+inference_class: ChurnInference
+output:
+  catalog: ngm_prd_ml
+  schema: predictions
+  table: churn_batch_scores
+
