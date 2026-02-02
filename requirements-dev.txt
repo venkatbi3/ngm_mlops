@@ -1,0 +1,11 @@
+# Testing and linting
+pytest>=7.1.2
+pytest-cov>=4.0.0
+
+# Code quality
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Project dependencies (from requirements.txt)
+-r requirements.txt
