@@ -52,7 +52,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Databricks CLI (bundle)
-        uses: databricks/setup-cli@v0.4.0
+        uses: databricks/setup-cli@main
         with:
           version: '1.6.1'
 
