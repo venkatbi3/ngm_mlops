@@ -2,8 +2,20 @@ resources:
   jobs:
     train_model:
       name: ngm-train-model
+      
+      # Option A: Define a job cluster (Recommended)
+      job_clusters:
+        - job_cluster_key: train_cluster
+          new_cluster:
+            spark_version: "13.3.x-scala2.12"  # Or your preferred version
+            node_type_id: "Standard_DS3_v2"    # Azure node type
+            num_workers: 2
+            spark_conf:
+              "spark.databricks.delta.preview.enabled": "true"
+      
       tasks:
         - task_key: train
+          job_cluster_key: train_cluster  # Reference the cluster defined above
           spark_python_task:
             python_file: ../../src/pipelines/train.py
             parameters:

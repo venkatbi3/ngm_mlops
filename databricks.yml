@@ -18,13 +18,15 @@ include:
   # Resources folder contains ML artifact resources for the ML project that defines model and experiment
   # And workflows resources for the ML project including model training -> validation -> deployment,
   # feature engineering,  batch inference, quality monitoring, metric refresh, alerts and triggering retraining
-  - resources/**/*.yml
+  - resources/jobs/*.yml
   # TODO: uncomment once monitoring inference table has been created
   # - ./resources/monitoring-resource.yml
 
 sync:
   include:
     - src
+    - resources/models
+    - resources/serving
 
 # Deployment Target specific values for workspaces
 targets:
