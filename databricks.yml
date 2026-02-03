@@ -19,10 +19,10 @@ include:
   # Resources folder contains ML artifact resources for the ML project that defines model and experiment
   # And workflows resources for the ML project including model training -> validation -> deployment,
   # feature engineering,  batch inference, quality monitoring, metric refresh, alerts and triggering retraining
-  - ./resources/batch-inference-workflow-resource.yml
-  - ./resources/ml-artifacts-resource.yml
-  - ./resources/model-workflow-resource.yml
-  - ./resources/feature-engineering-workflow-resource.yml
+  - ./resources/jobs/batch_inference.yml
+  - ./resources/jobs/train.yml
+  - ./resources/jobs/validate.yml
+  - ./resources/jobs/monitor.yml
   # TODO: uncomment once monitoring inference table has been created
   # - ./resources/monitoring-resource.yml
 
@@ -34,8 +34,8 @@ targets:
     variables:
       catalog_name: dev
     workspace:
-      # TODO: add dev workspace URL
-      host:
+      # Databricks workspace URL for dev environment
+      host: https://adb-1108654228307752.12.azuredatabricks.net
 
   staging:
     variables:
