@@ -8,6 +8,9 @@ variables:
   experiment_name:
     description: Experiment name for the model training.
     default: /Users/${workspace.current_user.userName}/${bundle.target}-ngm_mlops-experiment
+  git_sha:
+    description: "Git commit SHA"
+    default: "local"
   model_name:
     description: Model name for the model training.
     default: ngm_mlops-model
@@ -35,6 +38,7 @@ targets:
     default: true
     variables:
       catalog_name: dev
+      git_sha: "dev-build"
     workspace:
       # Databricks workspace URL for dev environment
       host: https://adb-1108654228307752.12.azuredatabricks.net
@@ -44,17 +48,20 @@ targets:
   staging:
     variables:
       catalog_name: staging
+      git_sha: "staging-build"
     workspace:
       host: https://adb-xxxx.xx.azuredatabricks.net
 
   prod:
     variables:
       catalog_name: prod
+      git_sha: "prod-build"
     workspace:
       host: https://adb-xxxx.xx.azuredatabricks.net
 
   test:
     variables:
       catalog_name: test
+      git_sha: "test-build"
     workspace:
       host: https://adb-xxxx.xx.azuredatabricks.net

@@ -9,6 +9,7 @@ on:
 env:
   # Databricks host for deploy job (non-secret value)
   DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
+  # DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
 jobs:
   test:
