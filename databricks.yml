@@ -19,15 +19,12 @@ include:
   # And workflows resources for the ML project including model training -> validation -> deployment,
   # feature engineering,  batch inference, quality monitoring, metric refresh, alerts and triggering retraining
   - resources/**/*.yml
-  - src/models/**/*.yml
   # TODO: uncomment once monitoring inference table has been created
   # - ./resources/monitoring-resource.yml
 
 sync:
   include:
-    - src/common/*.py
-    - src/models/**/*.py
-    - src/pipelines/*.py
+    - src
 
 # Deployment Target specific values for workspaces
 targets:
