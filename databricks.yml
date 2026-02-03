@@ -36,6 +36,8 @@ targets:
     workspace:
       # Databricks workspace URL for dev environment
       host: https://adb-1108654228307752.12.azuredatabricks.net
+      # Root folder path in workspace where bundle will be deployed
+      root_path: /Workspace/Bundles/ngm_mlops
 
   staging:
     variables:
