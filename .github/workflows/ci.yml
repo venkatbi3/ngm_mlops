@@ -53,8 +53,6 @@ jobs:
 
       - name: Install Databricks CLI (bundle)
         uses: databricks/setup-cli@main
-        with:
-          version: '1.6.1'
 
       - name: Validate Databricks bundle
         run: |
