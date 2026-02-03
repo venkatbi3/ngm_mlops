@@ -29,7 +29,7 @@ jobs:
       - name: Install Databricks CLI
         run: |
           pip install --upgrade pip
-          pip install databricks-cli
+          pip install 'databricks-cli>=0.220.0'
 
       - name: Validate Databricks bundle
         run: databricks bundle validate
