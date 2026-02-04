@@ -52,10 +52,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Databricks CLI
+      - name: Install Databricks SDK
         run: |
           pip install --upgrade pip
-          pip install 'databricks-cli>=0.220.0'
+          pip install 'databricks-sdk>=0.28.0'
 
       - name: Validate Databricks bundle
         run: |
