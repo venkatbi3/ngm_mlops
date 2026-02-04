@@ -1,0 +1,36 @@
+name: CD - UAT Deployment (Branch)
+
+on:
+  push:
+    branches: [ uat ]
+
+env:
+  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
+
+jobs:
+  deploy-uat:
+    name: Deploy to UAT
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Databricks CLI
+        run: |
+          pip install --upgrade pip
+          pip install 'databricks-cli>=0.220.0'
+
+      - name: Validate bundle
+        run: databricks bundle validate -t uat
+
+      - name: Deploy to UAT
+        run: databricks bundle deploy -t uat --var="git_sha=${{ github.sha }}"

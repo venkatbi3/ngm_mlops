@@ -34,8 +34,8 @@ jobs:
         run: |
           pytest -q
 
-  deploy:
-    name: Deploy to Databricks (dev)
+  deploy-rnd:
+    name: Deploy to RND (auto on main)
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && success()
@@ -52,13 +52,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Databricks CLI (bundle)
-        uses: databricks/setup-cli@main
+      - name: Install Databricks CLI
+        run: |
+          pip install --upgrade pip
+          pip install 'databricks-cli>=0.220.0'
 
       - name: Validate Databricks bundle
         run: |
-          databricks bundle validate
+          databricks bundle validate -t rnd
 
-      - name: Deploy Databricks bundle (dev)
+      - name: Deploy to RND
         run: |
-          databricks bundle deploy -t dev --var="git_sha=${{ github.sha }}"
+          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"

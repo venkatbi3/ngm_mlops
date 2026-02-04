@@ -33,35 +33,45 @@ sync:
 
 # Deployment Target specific values for workspaces
 targets:
-  dev:  # UC Catalog Name 
+  rnd:  # Research & Development - for active development
     mode: development
     default: true
+    variables:
+      catalog_name: rnd
+      git_sha: "rnd-build"
+    workspace:
+      host: https://adb-1108654228307752.12.azuredatabricks.net
+      root_path: ~/Bundles/ngm_mlops-rnd
+
+  dev:  # Development - for unit testing
+    mode: development
     variables:
       catalog_name: dev
       git_sha: "dev-build"
     workspace:
-      # Databricks workspace URL for dev environment
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      # Root folder path in workspace where bundle will be deployed (~ expands to user home)
-      root_path: ~/Bundles/ngm_mlops
+      root_path: ~/Bundles/ngm_mlops-dev
 
-  staging:
+  uat:  # User Acceptance Testing - for integration testing
     variables:
-      catalog_name: staging
-      git_sha: "staging-build"
+      catalog_name: uat
+      git_sha: "uat-build"
     workspace:
-      host: https://adb-xxxx.xx.azuredatabricks.net
+      host: https://adb-1108654228307752.12.azuredatabricks.net
+      root_path: /Workspace/Bundles/ngm_mlops-uat
 
-  prod:
+  preprod:  # Pre-Production - final staging before prod
+    variables:
+      catalog_name: preprod
+      git_sha: "preprod-build"
+    workspace:
+      host: https://adb-1108654228307752.12.azuredatabricks.net
+      root_path: /Workspace/Bundles/ngm_mlops-preprod
+
+  prod:  # Production - final deployment
     variables:
       catalog_name: prod
       git_sha: "prod-build"
     workspace:
-      host: https://adb-xxxx.xx.azuredatabricks.net
-
-  test:
-    variables:
-      catalog_name: test
-      git_sha: "test-build"
-    workspace:
-      host: https://adb-xxxx.xx.azuredatabricks.net
+      host: https://adb-1108654228307752.12.azuredatabricks.net
+      root_path: /Workspace/Bundles/ngm_mlops-prod

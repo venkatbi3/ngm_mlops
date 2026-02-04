@@ -1,0 +1,36 @@
+name: CD - Preprod Deployment (Branch)
+
+on:
+  push:
+    branches: [ preprod ]
+
+env:
+  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
+
+jobs:
+  deploy-preprod:
+    name: Deploy to Preprod
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Databricks CLI
+        run: |
+          pip install --upgrade pip
+          pip install 'databricks-cli>=0.220.0'
+
+      - name: Validate bundle
+        run: databricks bundle validate -t preprod
+
+      - name: Deploy to Preprod
+        run: databricks bundle deploy -t preprod --var="git_sha=${{ github.sha }}"
