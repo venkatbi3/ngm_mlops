@@ -55,8 +55,20 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install databricks-cli>=0.200.0  # Install NEW CLI first
+
+      - name: Install project dependencies
+        run: |          
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Verify Databricks CLI
+        run: |
+          echo "=== Databricks CLI Version ==="
+          databricks --version
+          echo ""
+          echo "=== Bundle command available ==="
+          databricks bundle --help | head -5
 
       - name: Validate imports
         run: |
@@ -67,7 +79,18 @@ jobs:
       - name: Run tests
         run: pytest -v tests/unit/test_smoke.py
 
-      - name: Build complete
+      - name: Validate Databricks bundle
         run: |
-          echo "✅ Project validation passed"
+          echo "Validating bundle configuration..."
+          databricks bundle validate -t rnd
+
+      - name: Deploy to Databricks
+        run: |
+          echo "Deploying to Databricks RND environment..."
+          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
+
+      - name: Deployment complete
+        run: |
+          echo "✅ Deployment to RND completed successfully"
           echo "📦 Git SHA: ${{ github.sha }}"
+          echo "🔗 Workspace: ~/Bundles/ngm-mlops-rnd"

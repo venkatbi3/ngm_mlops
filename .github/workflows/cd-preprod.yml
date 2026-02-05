@@ -32,8 +32,20 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install databricks-cli>=0.200.0  # Install NEW CLI first
+
+      - name: Install project dependencies
+        run: |          
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Verify Databricks CLI
+        run: |
+          echo "=== Databricks CLI Version ==="
+          databricks --version
+          echo ""
+          echo "=== Bundle command available ==="
+          databricks bundle --help | head -5
 
       - name: Validate imports
         run: |
@@ -41,10 +53,21 @@ jobs:
           python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
 
-      - name: Run integration tests
-        run: pytest -v tests/integration/ || true
+      - name: Run smoke tests
+        run: pytest -v tests/unit/test_smoke.py
 
-      - name: Deployment ready
+      - name: Validate Databricks bundle
         run: |
-          echo "✅ Preprod environment ready for deployment"
+          echo "Validating bundle configuration..."
+          databricks bundle validate -t preprod
+
+      - name: Deploy to Databricks
+        run: |
+          echo "Deploying to Databricks Preprod environment..."
+          databricks bundle deploy -t preprod --var="git_sha=${{ github.sha }}"
+
+      - name: Deployment complete
+        run: |
+          echo "✅ Deployment to Preprod completed successfully"
           echo "📦 Git SHA: ${{ github.sha }}"
+          echo "🔗 Workspace: ~/Bundles/ngm-mlops-preprod"

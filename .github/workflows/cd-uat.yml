@@ -32,6 +32,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
+          pip install databricks-cli>=0.200.0  # Install NEW CLI first
+
+      - name: Install project dependencies
+        run: |        
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
@@ -44,7 +48,18 @@ jobs:
       - name: Run integration tests
         run: pytest -v tests/integration/ || true
 
-      - name: Deployment ready
+      - name: Validate Databricks bundle
         run: |
-          echo "✅ UAT environment ready for deployment"
+          echo "Validating bundle configuration..."
+          databricks bundle validate -t uat
+
+      - name: Deploy to Databricks
+        run: |
+          echo "Deploying to Databricks Uat environment..."
+          databricks bundle deploy -t uat --var="git_sha=${{ github.sha }}"
+
+      - name: Deployment complete
+        run: |
+          echo "✅ Deployment to Uat completed successfully"
           echo "📦 Git SHA: ${{ github.sha }}"
+          echo "🔗 Workspace: ~/Bundles/ngm-mlops-uat"
