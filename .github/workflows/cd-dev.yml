@@ -39,12 +39,12 @@ jobs:
 
       - name: Validate bundle
         run: |
-          databricks bundle validate -t rnd
+          databricks bundle validate -t dev
 
       - name: Deploy bundle
         run: |
-          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
+          databricks bundle deploy -t dev --var="git_sha=${{ github.sha }}"
 
       - name: Run integration tests (optional)
         run: |
-          databricks bundle run train_model -t rnd
+          databricks bundle run train_model -t dev

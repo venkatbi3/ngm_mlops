@@ -64,3 +64,16 @@ jobs:
           python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
           python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
+
+      - name: Validate bundle
+        run: databricks bundle validate -t rnd
+
+      - name: Deploy to Databricks
+        run: |
+          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
+
+      - name: Verify deployment
+        run: |
+          echo "✅ Bundle deployed to Databricks RND environment"
+          echo "📦 Git SHA: ${{ github.sha }}"
+          echo "🔗 Workspace path: ~/Bundles/ngm-mlops-rnd"
