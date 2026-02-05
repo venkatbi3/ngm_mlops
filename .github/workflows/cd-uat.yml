@@ -17,6 +17,9 @@ jobs:
     name: Deploy to UAT
     runs-on: ubuntu-latest
 
+    env:
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,3 +41,15 @@ jobs:
           python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
           python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
+
+      - name: Validate bundle
+        run: |
+          databricks bundle validate -t rnd
+
+      - name: Deploy bundle
+        run: |
+          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
+
+      - name: Run integration tests (optional)
+        run: |
+          databricks bundle run train_model -t rnd

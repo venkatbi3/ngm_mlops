@@ -1,7 +1,7 @@
-name: CD - Multi-Environment Deployment
+name: CD - Multi-Env Deployment (Manual Trigger thru GitHub UI)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Manual trigger by a user through GitHub's UI (no automatic runs)
     inputs:
       environment:
         description: 'Target environment'
@@ -23,7 +23,7 @@ env:
 
 jobs:
   deploy:
-    name: Deploy to ${{ inputs.environment }}
+    name: Deploy to ${{ inputs.environment }} # Dynamic name based on user input
     runs-on: ubuntu-latest
 
     env:
@@ -55,3 +55,15 @@ jobs:
         run: |
           echo "✅ Deployment to ${{ inputs.environment }} completed successfully"
           echo "Git SHA: ${{ inputs.git_sha || github.sha }}"
+
+      - name: Validate bundle
+        run: databricks bundle validate -t ${{ inputs.environment }}
+
+      - name: Deploy bundle
+        run: |
+          databricks bundle deploy -t ${{ inputs.environment }} \
+            --var="git_sha=${{ inputs.git_sha || github.sha }}"
+
+      - name: Verify deployment
+        run: |
+          databricks workspace ls /Workspace/Bundles/ngm-mlops-${{ inputs.environment }}
