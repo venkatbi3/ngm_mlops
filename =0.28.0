@@ -1,0 +1,5 @@
+./.git/logs/HEAD:30764eec210ccb5ca4253e52fc464cd2b81e3af2 c71aaadfd55b66c7556fba14b0a8a5eb8d0f4346 Venkat Reddy <venkat.reddy@bi3technologies.com> 1770248760 +1100	commit: fix: replace non-existent databricks-cli 0.220.0 with databricks-sdk 0.28.0
+./.git/logs/HEAD:c71aaadfd55b66c7556fba14b0a8a5eb8d0f4346 3bdfa0caa301a922f338f4f2fe8d73e12a43a65c Venkat Reddy <venkat.reddy@bi3technologies.com> 1770249139 +1100	commit: fix: install both databricks-cli and databricks-sdk for bundle commands
+./.git/logs/refs/heads/main:30764eec210ccb5ca4253e52fc464cd2b81e3af2 c71aaadfd55b66c7556fba14b0a8a5eb8d0f4346 Venkat Reddy <venkat.reddy@bi3technologies.com> 1770248760 +1100	commit: fix: replace non-existent databricks-cli 0.220.0 with databricks-sdk 0.28.0
+./.git/logs/refs/heads/main:c71aaadfd55b66c7556fba14b0a8a5eb8d0f4346 3bdfa0caa301a922f338f4f2fe8d73e12a43a65c Venkat Reddy <venkat.reddy@bi3technologies.com> 1770249139 +1100	commit: fix: install both databricks-cli and databricks-sdk for bundle commands
+./.github/workflows/cd-dev.yml:          pip install 'databricks-cli>=0.18.0' 'databricks-sdk>=0.28.0'

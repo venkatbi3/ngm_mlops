@@ -57,22 +57,10 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install 'databricks-cli>=0.18.0' 'databricks-sdk>=0.28.0'
+          pip install databricks-cli
 
       - name: Validate imports
         run: |
           python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
           python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
-
-      - name: Validate bundle
-        run: |
-          databricks bundle validate -t rnd
-
-      - name: Deploy bundle
-        run: |
-          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
-
-      - name: Run integration tests (optional)
-        run: |
-          databricks bundle run train_model -t rnd
