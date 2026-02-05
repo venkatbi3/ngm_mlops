@@ -38,22 +38,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Databricks CLI
+      - name: Install dependencies
         run: |
           pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pip install 'databricks-cli>=0.18.0' 'databricks-sdk>=0.28.0'
 
-      - name: Install requirements
-        run: pip install -r requirements.txt
-
-      - name: Validate configuration
+      - name: Validate imports
         run: |
-          python -c "
-          import sys
-          sys.path.insert(0, '.')
-          from src.common.config import load_model_config
-          print('Config validation passed for environment: ${{ inputs.environment }}')
-          "
+          python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
+          python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
+          python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
 
       - name: Deployment Status
         run: |
