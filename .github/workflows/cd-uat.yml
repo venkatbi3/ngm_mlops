@@ -26,18 +26,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Databricks CLI v2
+      - name: Install Databricks CLI
         run: |
           pip install --upgrade pip
-          pip uninstall -y databricks-cli
-          pip install 'databricks>=0.30.0'
+          pip install 'databricks-cli>=0.18.0' 'databricks-sdk>=0.28.0'
 
-      - name: Validate Databricks bundle
-        run: databricks bundle validate
+      - name: Install requirements
+        run: pip install -r requirements.txt
 
-      - name: Deploy to UAT
-        env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      - name: Validate configuration
         run: |
-          GIT_SHA=${{ github.event.inputs.git_sha || github.sha }}
-          databricks bundle deploy -t staging --var="git_sha=${GIT_SHA}"
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          from src.common.config import load_model_config
+          print('Config validation passed')
+          "

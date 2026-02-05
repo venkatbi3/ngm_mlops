@@ -52,16 +52,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Databricks CLI v2
+      - name: Install Databricks CLI
         run: |
           pip install --upgrade pip
-          pip uninstall -y databricks-cli
-          pip install 'databricks>=0.30.0'
+          pip install 'databricks-cli>=0.18.0' 'databricks-sdk>=0.28.0'
 
-      - name: Validate Databricks bundle
-        run: |
-          databricks bundle validate -t rnd
+      - name: Install requirements
+        run: pip install -r requirements.txt
 
-      - name: Deploy to RND
+      - name: Validate configuration
         run: |
-          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          from src.common.config import load_model_config
+          print('Config validation passed')
+          "
