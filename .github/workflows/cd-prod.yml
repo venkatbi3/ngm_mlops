@@ -31,13 +31,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install databricks-cli>=0.200.0  # Install NEW CLI first
-
-      - name: Install project dependencies
-        run: |          
+          pip install --upgrade pip 
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      # FORCE install new CLI (overwrites any old version)
+      - name: Install NEW Databricks CLI
+        uses: databricks/setup-cli@main    
 
       - name: Verify Databricks CLI
         run: |

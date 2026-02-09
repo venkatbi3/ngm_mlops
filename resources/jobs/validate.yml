@@ -16,12 +16,12 @@ resources:
   registered_models:
       model:
         name: ${var.model_name}
-        catalog_name: ${var.catalog_name}
-        schema_name: cust_churn
-        comment: Registered model in Unity Catalog for the "ngm_mlops" ML Project for ${bundle.target} deployment target.
-        <<: *grants
+        #catalog_name: ${var.catalog_name}
+        #schema_name: cust_churn
+        #comment: Registered model in Unity Catalog for the "ngm_mlops" ML Project for ${bundle.target} deployment target.
+        #<<: *grants
 
   experiments:
     experiment:
       name: ${var.experiment_name}
-      <<: *permissions
+      #<<: *permissions

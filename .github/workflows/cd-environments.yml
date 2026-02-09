@@ -40,9 +40,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install --upgrade pip 
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      # FORCE install new CLI (overwrites any old version)
+      - name: Install NEW Databricks CLI
+        uses: databricks/setup-cli@main    
+
+      - name: Verify Databricks CLI
+        run: |
+          echo "=== Databricks CLI Version ==="
+          databricks --version
+          echo ""
+          echo "=== Bundle command available ==="
+          databricks bundle --help | head -5
 
       - name: Validate imports
         run: |
@@ -50,12 +62,18 @@ jobs:
           python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
 
-      - name: Deployment Status
+      - name: Validate Databricks bundle
+        run: |
+          echo "Validating bundle configuration..."
+          databricks bundle validate -t ${{ inputs.environment }}
+
+      - name: Deploy to Databricks
+        run: |
+          echo "Deploying to Databricks ${{ inputs.environment }} environment..."
+          databricks bundle deploy -t ${{ inputs.environment }} --var="git_sha=${{ github.sha }}"
+
+      - name: Deployment complete
         run: |
           echo "✅ Deployment to ${{ inputs.environment }} completed successfully"
-          echo "Git SHA: ${{ inputs.git_sha || github.sha }}"
-          echo "Environment: ${{ inputs.environment }}"
-
-      - name: Verify deployment
-        run: |
-          databricks workspace ls /Workspace/Bundles/ngm-mlops-${{ inputs.environment }}
+          echo "📦 Git SHA: ${{ github.sha }}"
+          echo "🔗 Workspace: /Workspace/Bundles/ngm-mlops-${{ inputs.environment }}"
