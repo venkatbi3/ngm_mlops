@@ -41,7 +41,7 @@ targets:
       git_sha: "rnd-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Repos/ngm_mlops-rnd
+      root_path: ~/Repos/ngm_mlops-rnd
 
   dev:  # Development - for unit testing
     mode: development
@@ -50,7 +50,7 @@ targets:
       git_sha: "dev-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Repos/ngm_mlops-dev
+      root_path: ~/Repos/ngm_mlops-dev
 
   uat:  # User Acceptance Testing - for integration testing
     variables:
