@@ -73,7 +73,7 @@ Use the `CD - Multi-Environment Deployment` workflow to deploy to any environmen
 
 - `DATABRICKS_TOKEN` secret must be set in GitHub (Settings → Secrets → Actions)
 - Ensure you have permissions to deploy to the target Databricks workspace
-- Bundles will be deployed to workspace paths like `~/Bundles/ngm_mlops-rnd`, `/Workspace/Bundles/ngm_mlops-dev`, etc.
+- Bundles will be deployed to workspace paths like `~/Repos/ngm_mlops-rnd`, `/Workspace/Repos/ngm_mlops-dev`, etc.
 
 ## Catalog Requirements
 

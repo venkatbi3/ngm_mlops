@@ -65,11 +65,11 @@ git push origin prod  # Triggers cd-prod-branch.yml → deploy to PROD
 | cd-environments.yml | Manual dispatch | Any | ✅ Manual |
 
 ## Workspace Paths (Databricks)
-- RND: `~/Bundles/ngm_mlops-rnd`
-- DEV: `~/Bundles/ngm_mlops-dev`
-- UAT: `/Workspace/Bundles/ngm_mlops-uat`
-- PREPROD: `/Workspace/Bundles/ngm_mlops-preprod`
-- PROD: `/Workspace/Bundles/ngm_mlops-prod`
+- RND: `~/Repos/ngm_mlops-rnd`
+- DEV: `~/Repos/ngm_mlops-dev`
+- UAT: `/Workspace/Repos/ngm_mlops-uat`
+- PREPROD: `/Workspace/Repos/ngm_mlops-preprod`
+- PROD: `/Workspace/Repos/ngm_mlops-prod`
 
 ## Troubleshooting
 

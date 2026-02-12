@@ -76,4 +76,4 @@ jobs:
         run: |
           echo "✅ Deployment to ${{ inputs.environment }} completed successfully"
           echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Workspace: /Workspace/Bundles/ngm-mlops-${{ inputs.environment }}"
+          echo "🔗 Workspace: /Workspace/Repos/ngm-mlops-${{ inputs.environment }}"

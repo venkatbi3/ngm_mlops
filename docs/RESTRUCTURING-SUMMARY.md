@@ -9,11 +9,11 @@
 
 | Target | Catalog | Mode | Path |
 |--------|---------|------|------|
-| rnd | rnd | development | ~/Bundles/ngm_mlops-rnd |
-| dev | dev | development | ~/Bundles/ngm_mlops-dev |
-| uat | uat | production | /Workspace/Bundles/ngm_mlops-uat |
-| preprod | preprod | production | /Workspace/Bundles/ngm_mlops-preprod |
-| prod | prod | production | /Workspace/Bundles/ngm_mlops-prod |
+| rnd | rnd | development | ~/Repos/ngm_mlops-rnd |
+| dev | dev | development | ~/Repos/ngm_mlops-dev |
+| uat | uat | production | /Workspace/Repos/ngm_mlops-uat |
+| preprod | preprod | production | /Workspace/Repos/ngm_mlops-preprod |
+| prod | prod | production | /Workspace/Repos/ngm_mlops-prod |
 
 ### 2. **Updated CI Workflow (`ci.yml`)**
 - Renamed deploy job from "deploy" to "deploy-rnd"

@@ -41,7 +41,7 @@ targets:
       git_sha: "rnd-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: ~/Bundles/ngm_mlops-rnd
+      root_path: /Workspace/Repos/ngm_mlops-rnd
 
   dev:  # Development - for unit testing
     mode: development
@@ -50,7 +50,7 @@ targets:
       git_sha: "dev-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: ~/Bundles/ngm_mlops-dev
+      root_path: /Workspace/Repos/ngm_mlops-dev
 
   uat:  # User Acceptance Testing - for integration testing
     variables:
@@ -58,7 +58,7 @@ targets:
       git_sha: "uat-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Bundles/ngm_mlops-uat
+      root_path: /Workspace/Repos/ngm_mlops-uat
 
   preprod:  # Pre-Production - final staging before prod
     variables:
@@ -66,7 +66,7 @@ targets:
       git_sha: "preprod-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Bundles/ngm_mlops-preprod
+      root_path: /Workspace/Repos/ngm_mlops-preprod
 
   prod:  # Production - final deployment
     variables:
@@ -74,4 +74,4 @@ targets:
       git_sha: "prod-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Bundles/ngm_mlops-prod
+      root_path: /Workspace/Repos/ngm_mlops-prod
