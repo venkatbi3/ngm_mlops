@@ -12,7 +12,7 @@ env:
 
 jobs:
   test:
-    name: Run unit tests
+    name: Run Git Hub Actionsfind CI Tests
     runs-on: ubuntu-latest  # Uses GitHub-hosted Ubuntu runner
 
     steps:
