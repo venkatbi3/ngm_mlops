@@ -275,15 +275,15 @@ DATABRICKS_HOST_PROD=https://adb-bbbb.12.azuredatabricks.net
 
 ```sql
 -- In Databricks SQL
-CREATE CATALOG IF NOT EXISTS rnd;
+CREATE CATALOG IF NOT EXISTS ngm_ml_rnd;
 CREATE CATALOG IF NOT EXISTS dev;
 CREATE CATALOG IF NOT EXISTS uat;
 CREATE CATALOG IF NOT EXISTS preprod;
 CREATE CATALOG IF NOT EXISTS prod;
 
 -- Create schemas for each
-CREATE SCHEMA IF NOT EXISTS rnd.features;
-CREATE SCHEMA IF NOT EXISTS rnd.predictions;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.features;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.predictions;
 -- (repeat for dev, uat, preprod, prod)
 ```
 

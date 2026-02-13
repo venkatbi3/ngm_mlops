@@ -3,8 +3,8 @@ bigquery:
   dataset: "Integration"
 
 databricks:
-  catalog: "main"
-  schema: "churn_features"
+  catalog: "ngm_ml_rnd"
+  schema: "features"
 
 features:
   start_date: "2019-10-01"

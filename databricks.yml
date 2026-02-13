@@ -37,7 +37,7 @@ targets:
     mode: development
     default: true
     variables:
-      catalog_name: rnd
+      catalog_name: ngm_ml_rnd
       git_sha: "rnd-build"
     workspace:
       host: https://adb-1108654228307752.12.azuredatabricks.net  # Set via env var or CLI: --var="databricks_host=https://..."

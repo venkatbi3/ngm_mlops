@@ -134,7 +134,7 @@ ngm_mlops/
 ```
 RND (Research & Development)
 ├── Auto-deploy: Yes (on main branch push)
-├── Catalog: rnd
+├── Catalog: ngm_ml_rnd
 ├── Data: Sample/test data
 └── Purpose: Rapid experimentation
 
