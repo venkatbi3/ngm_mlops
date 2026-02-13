@@ -89,6 +89,6 @@ jobs:
 
       - name: Deployment complete
         run: |
-          echo "✅ Deployment to RND completed successfully"
-          echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Target: RND (rnd catalog)
+          echo " Deployment to RND completed successfully"
+          echo " Git SHA: ${{ github.sha }}"
+          echo " Target: RND (rnd catalog)""
