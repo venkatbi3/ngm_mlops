@@ -17,7 +17,7 @@ resources:
       model:
         name: ${var.model_name}
         catalog_name: ${var.catalog_name}
-        schema_name: cust_churn
+        schema_name: features
         #comment: Registered model in Unity Catalog for the "ngm_mlops" ML Project for ${bundle.target} deployment target.
         #<<: *grants
 
