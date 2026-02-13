@@ -5,6 +5,9 @@ bundle:
   name: ngm_mlops
 
 variables:
+  databricks_host:
+    description: "Databricks workspace host URL (e.g., https://adb-xxxx.xx.azuredatabricks.net)"
+    default: ""
   experiment_name:
     description: Experiment name for the model training.
     default: /Users/${workspace.current_user.userName}/${bundle.target}-ngm_mlops-experiment
@@ -39,39 +42,44 @@ targets:
     variables:
       catalog_name: rnd
       git_sha: "rnd-build"
+      workspace_path: "~/Repos/ngm_mlops-rnd"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: ~/Repos/ngm_mlops-rnd
+      host: ${var.databricks_host}  # Set via env var or CLI: --var="databricks_host=https://..."
+      root_path: ${var.workspace_path}
 
   dev:  # Development - for unit testing
     mode: development
     variables:
       catalog_name: dev
       git_sha: "dev-build"
+      workspace_path: "~/Repos/ngm_mlops-dev"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: ~/Repos/ngm_mlops-dev
+      host: ${var.databricks_host}
+      root_path: ${var.workspace_path}
 
   uat:  # User Acceptance Testing - for integration testing
     variables:
       catalog_name: uat
       git_sha: "uat-build"
+      workspace_path: "/Workspace/Repos/ngm_mlops-uat"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Repos/ngm_mlops-uat
+      host: ${var.databricks_host}
+      root_path: ${var.workspace_path}
 
   preprod:  # Pre-Production - final staging before prod
     variables:
       catalog_name: preprod
       git_sha: "preprod-build"
+      workspace_path: "/Workspace/Repos/ngm_mlops-preprod"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Repos/ngm_mlops-preprod
+      host: ${var.databricks_host}
+      root_path: ${var.workspace_path}
 
   prod:  # Production - final deployment
     variables:
       catalog_name: prod
       git_sha: "prod-build"
+      workspace_path: "/Workspace/Repos/ngm_mlops-prod"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
-      root_path: /Workspace/Repos/ngm_mlops-prod
+      host: ${var.databricks_host}
+      root_path: ${var.workspace_path}

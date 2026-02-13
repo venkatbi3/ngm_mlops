@@ -5,7 +5,7 @@ on:
     branches: [ dev ]
 
 env:
-  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
   deploy-dev:
@@ -30,17 +30,13 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      # FORCE install new CLI (overwrites any old version)
-      - name: Install NEW Databricks CLI
+      - name: Install Databricks CLI
         uses: databricks/setup-cli@main    
 
       - name: Verify Databricks CLI
         run: |
           echo "=== Databricks CLI Version ==="
           databricks --version
-          echo ""
-          echo "=== Bundle command available ==="
-          databricks bundle --help | head -5
 
       - name: Validate imports
         run: |
@@ -50,16 +46,18 @@ jobs:
 
       - name: Validate Databricks bundle
         run: |
-          echo "Validating bundle configuration..."
-          databricks bundle validate -t dev
+          echo "Validating bundle configuration for Dev..."
+          databricks bundle validate -t dev --var="databricks_host=${{ env.DATABRICKS_HOST }}"
 
       - name: Deploy to Databricks
         run: |
           echo "Deploying to Databricks Dev environment..."
-          databricks bundle deploy -t dev --var="git_sha=${{ github.sha }}"
+          databricks bundle deploy -t dev \
+            --var="databricks_host=${{ env.DATABRICKS_HOST }}" \
+            --var="git_sha=${{ github.sha }}"
 
       - name: Deployment complete
         run: |
           echo "✅ Deployment to Dev completed successfully"
           echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Workspace: ~/Bundles/ngm-mlops-dev"
+          echo "🔗 Target: Dev (dev catalog)"

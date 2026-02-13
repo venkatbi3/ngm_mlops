@@ -10,7 +10,7 @@ on:
     branches: [ preprod ]
 
 env:
-  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PREPROD || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
   deploy-preprod:
@@ -35,17 +35,13 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      # FORCE install new CLI (overwrites any old version)
-      - name: Install NEW Databricks CLI
+      - name: Install Databricks CLI
         uses: databricks/setup-cli@main    
 
       - name: Verify Databricks CLI
         run: |
           echo "=== Databricks CLI Version ==="
           databricks --version
-          echo ""
-          echo "=== Bundle command available ==="
-          databricks bundle --help | head -5
 
       - name: Validate imports
         run: |
@@ -54,20 +50,23 @@ jobs:
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
 
       - name: Run smoke tests
-        run: pytest -v tests/unit/test_smoke.py
+        run: pytest -v tests/unit/test_smoke.py --tb=short
 
       - name: Validate Databricks bundle
         run: |
-          echo "Validating bundle configuration..."
-          databricks bundle validate -t preprod
+          echo "Validating bundle configuration for Preprod..."
+          databricks bundle validate -t preprod --var="databricks_host=${{ env.DATABRICKS_HOST }}"
 
       - name: Deploy to Databricks
         run: |
           echo "Deploying to Databricks Preprod environment..."
-          databricks bundle deploy -t preprod --var="git_sha=${{ github.sha }}"
+          GIT_SHA=${{ github.event.inputs.git_sha || github.sha }}
+          databricks bundle deploy -t preprod \
+            --var="databricks_host=${{ env.DATABRICKS_HOST }}" \
+            --var="git_sha=${GIT_SHA}"
 
       - name: Deployment complete
         run: |
           echo "✅ Deployment to Preprod completed successfully"
-          echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Workspace: ~/Bundles/ngm-mlops-preprod"
+          echo "📦 Git SHA: ${{ github.event.inputs.git_sha || github.sha }}"
+          echo "🔗 Target: Preprod (preprod catalog)"

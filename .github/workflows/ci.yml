@@ -7,9 +7,8 @@ on:
     branches: [ main ]
 
 env:
-  # Databricks host for deploy job (non-secret value)
-  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net
-  # DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+  # Get Databricks host from GitHub secrets or use default
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_RND || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
   test:
@@ -32,7 +31,7 @@ jobs:
 
       - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
         run: |
-          pytest -q 
+          pytest -q --tb=short
 
   deploy-rnd:
     name: Deploy to RND (auto on main)
@@ -58,17 +57,15 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      # FORCE install new CLI (overwrites any old version)
-      - name: Install NEW Databricks CLI
+      - name: Install Databricks CLI
         uses: databricks/setup-cli@main        
 
       - name: Verify Databricks CLI
         run: |
           echo "=== Databricks CLI Version ==="
           databricks --version
-          echo ""
-          echo "=== Bundle command available ==="
-          databricks bundle --help | head -5
+          echo "=== Databricks Host ==="
+          echo "Host: ${{ env.DATABRICKS_HOST }}"
 
       - name: Validate imports
         run: |
@@ -77,20 +74,22 @@ jobs:
           python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
 
       - name: Run tests
-        run: pytest -v tests/unit/test_smoke.py
+        run: pytest -v tests/unit/test_smoke.py --tb=short
 
       - name: Validate Databricks bundle
         run: |
-          echo "Validating bundle configuration..."
-          databricks bundle validate -t rnd
+          echo "Validating bundle configuration for RND..."
+          databricks bundle validate -t rnd --var="databricks_host=${{ env.DATABRICKS_HOST }}"
 
       - name: Deploy to Databricks
         run: |
           echo "Deploying to Databricks RND environment..."
-          databricks bundle deploy -t rnd --var="git_sha=${{ github.sha }}"
+          databricks bundle deploy -t rnd \
+            --var="databricks_host=${{ env.DATABRICKS_HOST }}" \
+            --var="git_sha=${{ github.sha }}"
 
       - name: Deployment complete
         run: |
           echo "✅ Deployment to RND completed successfully"
           echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Workspace: ~/Bundles/ngm-mlops-rnd"
+          echo "🔗 Target: RND (rnd catalog)

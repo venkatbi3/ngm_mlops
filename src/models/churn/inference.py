@@ -1,6 +1,6 @@
 import pandas as pd
 from pyspark.sql import SparkSession
-from common.base_inference import BaseInference
+from src.models.base import BaseInference
 from datetime import datetime
 from pyspark.sql.functions import col, lit
 
@@ -10,7 +10,7 @@ class ChurnInference(BaseInference):
         spark = SparkSession.builder.getOrCreate()
 
         df = spark.table(
-            self.config["data"]["features_table"]
+            self.config.data.features_table
         )
 
         return df
@@ -21,7 +21,7 @@ class ChurnInference(BaseInference):
         preds = model.predict_proba(pdf)[:, 1]
         pdf["churn_score"] = preds
 
-        # 🔐 Model lineage stamping
+        # Model lineage stamping
         pdf["model_name"] = self.metadata["model_name"]
         pdf["model_version"] = self.metadata["model_version"]
         pdf["run_id"] = self.metadata["run_id"]
@@ -36,7 +36,7 @@ class ChurnInference(BaseInference):
         predictions_pdf["score_batch_id"] = f"{datetime.utcnow().isoformat()}"
         
         spark_df = spark.createDataFrame(predictions_pdf)
-        output_table = f"{self.config['output']['catalog']}.{self.config['output']['schema']}.{self.config['output']['table']}"
+        output_table = f"{self.config.output.catalog}.{self.config.output.schema}.{self.config.output.table}"
         
         # Create table if not exists
         if not spark.catalog.tableExists(output_table):

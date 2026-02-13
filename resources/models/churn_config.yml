@@ -1,23 +1,11 @@
-model_key: churn
-registered_model_name: ngm_churn_model
+bigquery:
+  catalog: "bigquery_catalog"
+  dataset: "Integration"
 
-trainer_class: ChurnTrainer
-validator_class: ChurnValidator
+databricks:
+  catalog: "main"
+  schema: "churn_features"
 
-data:
-  features_table: ngm_prd_ml.features.customer_churn
-  label_col: churn_flag
-
-metrics:
-  auc_threshold: 0.75
-
-hyperparameters:
-  n_estimators: 300
-  max_depth: 10
-
-inference_class: ChurnInference
-output:
-  catalog: ngm_prd_ml
-  schema: predictions
-  table: churn_batch_scores
-
+features:
+  start_date: "2019-10-01"
+  end_date: "2025-03-01"

@@ -17,7 +17,7 @@ baseline = mlflow.artifacts.load_dict(
 )
 
 # Load recent scored data
-df = spark.table("ngm_prd_ml.predictions.churn_batch_scores")
+df = spark.table("ngm_ml_rnd.predictions.churn_batch_scores")
 pdf = df.toPandas()
 
 drift_metrics = []
@@ -34,4 +34,4 @@ for col, stats in baseline.items():
 
 spark.createDataFrame(drift_metrics) \
     .write.mode("append") \
-    .saveAsTable("ngm_prd_ml.monitoring.churn_drift_metrics")
+    .saveAsTable("ngm_ml_rnd.monitoring.churn_drift_metrics")

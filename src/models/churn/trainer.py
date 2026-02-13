@@ -2,7 +2,7 @@ import mlflow
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score
-from common.base_trainer import BaseTrainer
+from src.models.base import BaseTrainer
 from pyspark.sql import SparkSession
 
 class ChurnTrainer(BaseTrainer):
@@ -10,19 +10,19 @@ class ChurnTrainer(BaseTrainer):
     def load_data(self):
         spark = SparkSession.builder.getOrCreate()
 
-        df = spark.table(self.config["data"]["features_table"]).toPandas()
+        df = spark.table(self.config.data.features_table).toPandas()
 
-        X = df.drop(self.config["data"]["label_col"], axis=1)
-        y = df[self.config["data"]["label_col"]]
+        X = df.drop(self.config.data.label_col, axis=1)
+        y = df[self.config.data.label_col]
 
         return X, y
 
     def train(self):
-        hp = self.config["hyperparameters"]
+        hp = self.config.hyperparameters
 
         model = RandomForestClassifier(
-            n_estimators=hp["n_estimators"],
-            max_depth=hp["max_depth"],
+            n_estimators=hp.n_estimators,
+            max_depth=hp.max_depth,
             random_state=42
         )
         model.fit(self.X, self.y)
