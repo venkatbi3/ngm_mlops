@@ -8,7 +8,7 @@ on:
 
 env:
   # Get Databricks host from GitHub secrets or use default
-  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_RND || 'https://adb-xxxx.xx.azuredatabricks.net' }}
+  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net #${{ secrets.DATABRICKS_HOST_RND || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
   test:
