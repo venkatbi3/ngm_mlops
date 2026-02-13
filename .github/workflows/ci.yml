@@ -79,13 +79,12 @@ jobs:
       - name: Validate Databricks bundle
         run: |
           echo "Validating bundle configuration for RND..."
-          databricks bundle validate -t rnd --var="databricks_host=${{ env.DATABRICKS_HOST }}"
+          databricks bundle validate -t rnd
 
       - name: Deploy to Databricks
         run: |
           echo "Deploying to Databricks RND environment..."
           databricks bundle deploy -t rnd \
-            --var="databricks_host=${{ env.DATABRICKS_HOST }}" \
             --var="git_sha=${{ github.sha }}"
 
       - name: Deployment complete
