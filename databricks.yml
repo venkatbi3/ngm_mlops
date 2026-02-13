@@ -42,10 +42,10 @@ targets:
     variables:
       catalog_name: rnd
       git_sha: "rnd-build"
-      workspace_path: "~/Repos/ngm_mlops-rnd"
+      #workspace_path: "~/Repos/ngm_mlops-rnd"
     workspace:
       host: ${var.databricks_host}  # Set via env var or CLI: --var="databricks_host=https://..."
-      root_path: ${var.workspace_path}
+      root_path:  "~/Repos/ngm_mlops-rnd" #${var.workspace_path}
 
   dev:  # Development - for unit testing
     mode: development
