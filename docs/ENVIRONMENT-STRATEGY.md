@@ -86,7 +86,7 @@ Ensure the following catalogs exist in your Databricks workspace:
 
 Create them via SQL or Databricks UI if they don't exist:
 ```sql
-CREATE CATALOG IF NOT EXISTS rnd;
+CREATE CATALOG IF NOT EXISTS ngm_ml_rnd;
 CREATE CATALOG IF NOT EXISTS dev;
 CREATE CATALOG IF NOT EXISTS uat;
 CREATE CATALOG IF NOT EXISTS preprod;
