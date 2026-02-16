@@ -53,7 +53,7 @@ def main(argv=None):
 
     # Safe dynamic import of inference class
     try:
-        inference_module = importlib.import_module(f"models.{MODEL_KEY}.inference")
+        inference_module = importlib.import_module(f"src.models.{MODEL_KEY}.inference")
         InferenceClass = getattr(inference_module, config.inference_class)
     except Exception as e:
         logger.exception("Failed to import inference class for %s", MODEL_KEY)
