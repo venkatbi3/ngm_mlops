@@ -23,9 +23,6 @@ ngm-validate = "pipelines.validate:main"
 ngm-inference = "pipelines.inference:main"
 ngm-monitor = "pipelines.monitor:main"
 
-[tool.setuptools]
-packages = ["ngm_mlops"]
-
 [tool.setuptools.package-data]
 ngm_mlops = ["py.typed"]
 
