@@ -1,27 +1,30 @@
-# Allow users to read the experiment 
-common_permissions: &permissions
-  permissions:
-    - level: CAN_READ
-      group_name: users
+name: validate_job
+tasks:
+  - task_key: validate_churn
+    python_wheel_task:
+      package_name: ngm_mlops
+      entry_point: ngm-validate
+      parameters: ["--model", "churn", "--env", "${var:environment}", "--git_sha", "${var.git_sha}"]
+    new_cluster:
+      spark_version: "13.3.x-scala2.12"
+      node_type_id: "i3.xlarge"
+      num_workers: 1
+    timeout_seconds: 1800
 
-# Allow users to execute models in Unity Catalog
-grants: &grants
-  grants:
-    - privileges:
-        - EXECUTE
-      principal: account users
+  - task_key: validate_fraud
+    python_wheel_task:
+      package_name: ngm_mlops
+      entry_point: ngm-validate
+      parameters: ["--model", "fraud", "--env", "${var:environment}", "--git_sha", "${var.git_sha}"]
+    new_cluster:
+      spark_version: "13.3.x-scala2.12"
+      node_type_id: "i3.xlarge"
+      num_workers: 1
+    timeout_seconds: 1800
+    depends_on:
+      - task_key: validate_churn
 
-# Defines model and experiments
-resources:
-  registered_models:
-      model:
-        name: ${var.model_name}
-        catalog_name: ${var.catalog_name}
-        schema_name: features
-        #comment: Registered model in Unity Catalog for the "ngm_mlops" ML Project for ${bundle.target} deployment target.
-        #<<: *grants
-
-  experiments:
-    experiment:
-      name: ${var.experiment_name}
-      #<<: *permissions
+schedule:
+  quartz_cron_expression: "0 0 6 * * ?"
+  timezone_id: "UTC"
+  pause_status: UNPAUSED

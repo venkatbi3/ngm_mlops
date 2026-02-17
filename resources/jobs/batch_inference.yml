@@ -1,19 +1,30 @@
-resources:
-  jobs:
-    batch_inference:
-      name: ngm-batch-inference
-      schedule:
-        quartz_cron_expression: "0 0 10 * * ?"   # daily 10 AM
-        timezone_id: Australia/Sydney
-      tasks:
-        - task_key: score
-          spark_python_task:
-            python_file: ../../src/pipelines/inference.py
-            parameters:
-              - churn
-          new_cluster:
-            spark_version: 14.3.x-scala2.12
-            node_type_id: Standard_DS3_v2
-            num_workers: 2
-          schedule:
-            quartz_cron_expression: "0 0 10 * * ?"  # Daily 10 AM
+name: batch_inference_job
+tasks:
+  - task_key: batch_inference_churn
+    python_wheel_task:
+      package_name: ngm_mlops
+      entry_point: ngm-inference
+      parameters: ["--model", "churn", "--env", "${var:environment}"]
+    new_cluster:
+      spark_version: "13.3.x-scala2.12"
+      node_type_id: "i3.xlarge"
+      num_workers: 4
+    timeout_seconds: 7200
+
+  - task_key: batch_inference_fraud
+    python_wheel_task:
+      package_name: ngm_mlops
+      entry_point: ngm-inference
+      parameters: ["--model", "fraud", "--env", "${var:environment}"]
+    new_cluster:
+      spark_version: "13.3.x-scala2.12"
+      node_type_id: "i3.xlarge"
+      num_workers: 4
+    timeout_seconds: 7200
+    depends_on:
+      - task_key: batch_inference_churn
+
+schedule:
+  quartz_cron_expression: "0 0 12 * * ?"
+  timezone_id: "UTC"
+  pause_status: UNPAUSED

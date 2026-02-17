@@ -43,6 +43,9 @@ jobs:
           echo "=== Databricks CLI Version ==="
           databricks --version
 
+      - name: Build wheel
+        run: python -m build --wheel
+        
       - name: Validate imports
         run: |
           python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"

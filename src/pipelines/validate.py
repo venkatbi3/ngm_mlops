@@ -2,11 +2,16 @@
 Model validation pipeline.
 Validates candidate models and promotes to Champion if they pass tests.
 """
+import argparse
 import sys
 import importlib
 import re
+from pathlib import Path
 from mlflow.tracking import MlflowClient
 import mlflow
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.common.config import load_model_config
 from src.common.logger import get_logger
@@ -21,17 +26,33 @@ def _validate_model_key(key: str) -> None:
         raise ConfigError(f"Invalid model key: {key}")
 
 
-def main(argv=None):
+def main():
     """Main validation pipeline."""
-    argv = argv or sys.argv
+    parser = argparse.ArgumentParser(
+        description="Validate ML models",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        required=True,
+        help="Model key to validate (e.g., churn, fraud)"
+    )
+    parser.add_argument(
+        "--env",
+        type=str,
+        default="dev",
+        choices=["dev", "uat", "preprod", "prod"],
+        help="Environment to validate in (default: dev)"
+    )
     
-    if len(argv) < 2:
-        raise ConfigError("MODEL_KEY argument required (e.g., python validate.py churn)")
+    args = parser.parse_args()
+    model_key = args.model
+    environment = args.env
     
-    model_key = argv[1]
     _validate_model_key(model_key)
     
-    logger.info(f"Starting validation for model: {model_key}")
+    logger.info(f"Starting validation for model: {model_key} in {environment}")
     
     # Load config
     config = load_model_config(model_key)

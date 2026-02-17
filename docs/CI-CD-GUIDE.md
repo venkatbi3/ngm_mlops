@@ -63,10 +63,10 @@ Manual: Create PR and merge to prod
 
 **Environment-Specific**:
 
-- **dev**: Use `DATABRICKS_HOST_RND` secret
+- **rnd**: Use `DATABRICKS_HOST_RND` secret
 - **dev**: Use `DATABRICKS_HOST_DEV` secret
 - **uat**: Use `DATABRICKS_HOST_UAT` secret
-- **uat**: Use `DATABRICKS_HOST_PREPROD` secret
+- **preprod**: Use `DATABRICKS_HOST_PREPROD` secret
 - **prod**: Use `DATABRICKS_HOST_PROD` secret + manual approval gate
 
 ---
@@ -304,6 +304,14 @@ git push origin prod
 - [ ] Rollback plan ready
 - [ ] Stakeholder approval
 
+---
+
+The Execution chain : pyproject.toml 
+```
+python_wheel_task
+  └── package_name: ngm_mlops     →  finds the installed wheel
+        └── entry_point: ngm-train  →  looks up [project.scripts] in pyproject.toml
+                └── "ngm-train = pipelines.train:main"  →  calls main() in src/pipelines/train.py
 ---
 
 ## Deployment Monitoring

@@ -56,6 +56,9 @@ jobs:
           echo "=== Bundle command available ==="
           databricks bundle --help | head -5
 
+      - name: Build wheel
+        run: python -m build --wheel
+
       - name: Validate imports
         run: |
           python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"

@@ -1,32 +1,59 @@
+"""
+Inference pipeline for batch scoring. Loads the Champion model, runs inference, and writes output.
+"""
+import argparse
 import sys
 import importlib
 import re
 from datetime import datetime
+from pathlib import Path
 
 import mlflow
 from mlflow.tracking import MlflowClient
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.common.config import load_model_config
 from src.common.logger import get_logger
 from src.common.exceptions import ConfigError, ImportErrorSafe
 
-
 logger = get_logger(__name__)
 
 
 def _validate_model_key(key: str) -> None:
+    """Validate model key format."""
     if not re.match(r"^[A-Za-z0-9_\-]+$", key):
         raise ConfigError(f"Invalid model key: {key}")
 
 
-def main(argv=None):
-    argv = argv or sys.argv
-    if len(argv) < 2:
-        logger.error("MODEL_KEY argument missing")
-        raise ConfigError("MODEL_KEY argument missing")
-
-    MODEL_KEY = argv[1]
+def main():
+    """Main inference pipeline."""
+    parser = argparse.ArgumentParser(
+        description="Run batch inference",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        required=True,
+        help="Model key to use for inference (e.g., churn, fraud)"
+    )
+    parser.add_argument(
+        "--env",
+        type=str,
+        default="dev",
+        choices=["dev", "uat", "preprod", "prod"],
+        help="Environment to run inference in (default: dev)"
+    )
+    
+    args = parser.parse_args()
+    MODEL_KEY = args.model
+    environment = args.env
+    
     _validate_model_key(MODEL_KEY)
+    
+    logger.info(f"Starting inference pipeline for model: {MODEL_KEY} in {environment}")
 
     config = load_model_config(MODEL_KEY)
     client = MlflowClient()

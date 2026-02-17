@@ -31,7 +31,18 @@ jobs:
 
       - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
         run: |
-          pytest -q --tb=short
+          pytest tests/ -v
+
+      - name: Build wheel
+        run: |
+          pip install build
+          python -m build --wheel
+      
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ngm_mlops_wheel
+          path: dist/*.whl
 
   deploy-rnd:
     name: Deploy to RND (auto on main)
