@@ -96,16 +96,19 @@ dev/                          # Dev environment catalog
 ├── raw_data/                # Raw source tables
 ├── features/                # Feature tables
 └── predictions/             # Model predictions
+└── moniroting/             # Model moniroting
 
 uat/                          # UAT environment catalog
 ├── raw_data/
 ├── features/
 └── predictions/
+└── moniroting/             # Model moniroting
 
 prod/                         # Production catalog
 ├── raw_data/
 ├── features/
 └── predictions/
+└── moniroting/             # Model moniroting
 ```
 
 ### Creating Catalogs
@@ -114,16 +117,19 @@ In Databricks SQL:
 
 ```sql
 -- Create catalogs for each environment
-CREATE CATALOG IF NOT EXISTS dev;
-CREATE CATALOG IF NOT EXISTS uat;
-CREATE CATALOG IF NOT EXISTS prod;
+CREATE CATALOG IF NOT EXISTS ngm_ml_rnd;
+CREATE CATALOG IF NOT EXISTS ngm_ml_dev;
+CREATE CATALOG IF NOT EXISTS ngm_ml_uat;
+CREATE CATALOG IF NOT EXISTS ngm_ml_preprod;
+CREATE CATALOG IF NOT EXISTS ngm_ml_prod;
 
 -- Create schemas
-CREATE SCHEMA IF NOT EXISTS dev.raw_data;
-CREATE SCHEMA IF NOT EXISTS dev.features;
-CREATE SCHEMA IF NOT EXISTS dev.predictions;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.raw_data;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.features;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.predictions;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.monitoring;
 
--- Similar for uat, prod
+-- Similar for dev, uat, preprod and prod
 ```
 
 ---
@@ -201,37 +207,6 @@ INTO {output_table}
 
 ---
 
-## Environment-Specific Variables
-
-### Bundle Variables (databricks.yml)
-
-```yaml
-variables:
-  databricks_host:
-    description: "Workspace host URL"
-    default: ""
-  
-  catalog_name:
-    description: "UC catalog for model artifacts"
-    default: "dev"
-  
-  git_sha:
-    description: "Git commit SHA"
-    default: "local"
-```
-
-### Usage
-
-```bash
-# Pass via CLI
-databricks bundle deploy -t prod \
-  --var="databricks_host=https://adb-xxxx.xx.azuredatabricks.net" \
-  --var="catalog_name=prod" \
-  --var="git_sha=$GIT_SHA"
-```
-
----
-
 ## Secrets Management
 
 ### Databricks Secrets (Recommended)
@@ -280,6 +255,5 @@ env:
 
 ## Next Steps
 
-- [Deployment Guide](./DEPLOYMENT-GUIDE.md)
 - [CI/CD Workflows](./CI-CD-GUIDE.md)
 - [Model Lifecycle](./MODEL-LIFECYCLE.md)

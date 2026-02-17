@@ -10,7 +10,7 @@ on:
     branches: [ preprod ]
 
 env:
-  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PREPROD || 'https://adb-xxxx.xx.azuredatabricks.net' }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} #${{ secrets.DATABRICKS_HOST_PREPROD || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
   deploy-preprod:

@@ -8,11 +8,16 @@ validator_class: ChurnValidator
 inference_class: ChurnInference
 
 data:
-  features_table: "ngm_ml_rnd.features.churn_combined_features"  # Override per environment
+  features_table: "ngm_ml_rnd.features.churn_features"  # Override per environment
   label_col: "churn_label"
 
+features:
+  start_date: "2019-10-01"              # Feature engineering date range
+  end_date: "2025-03-01"
+
 metrics:
-  auc_threshold: 0.75
+  auc_threshold: 0.75                   # Min AUC to pass validation
+  min_recall: 0.80                      # For fraud detection
 
 hyperparameters:
   n_estimators: 100
@@ -21,7 +26,7 @@ hyperparameters:
 output:
   catalog: "ngm_ml_rnd"  # Override per environment (ngm_ml_dev, ngm_ml_uat, ngm_ml_prod)
   schema: "predictions"
-  table: "churn_batch_scores"
+  table: "churn_scores"
 
 # Data source configuration
 bigquery:
@@ -30,10 +35,7 @@ bigquery:
 
 # Legacy Databricks source (for data pull)
 databricks_source:
-  catalog: "source_catalog"  # Override per environment
+  catalog: "source_catalog"  
   schema: "raw_data"
 
-# Feature engineering date range
-features:
-  start_date: "2019-10-01"
-  end_date: "2025-03-01"
+

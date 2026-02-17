@@ -5,6 +5,6 @@ resources:
       config:
         served_models:
           - model_name: ngm_churn_model
-            model_version: "Champion"
+            model_version: 5 # Champion"=
             workload_size: Small
             scale_to_zero_enabled: true

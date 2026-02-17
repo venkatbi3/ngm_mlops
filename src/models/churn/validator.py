@@ -20,7 +20,7 @@ class ChurnValidator(BaseValidator):
             run = mlflow.get_run(run_id)
             auc = run.data.metrics.get("auc", 0)
             
-            threshold = self.config.metrics.auc_threshold
+            threshold = self.config.metrics.auc_threshold  # e.g., 0.75
             
             if auc >= threshold:
                 return True

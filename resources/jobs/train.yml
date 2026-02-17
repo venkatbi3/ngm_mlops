@@ -14,6 +14,11 @@ resources:
             num_workers: 2
             spark_conf:
               "spark.databricks.delta.preview.enabled": "true"
+            environment_variables:
+              CATALOG_NAME: "ngm_ml_rnd"        # Override for RND target
+              FEATURES_SCHEMA: "features"
+              # For DEV target: CATALOG_NAME="ngm_ml_dev"
+              # For PROD target: CATALOG_NAME="ngm_ml_prod"
       
       tasks:
         - task_key: train
@@ -24,3 +29,6 @@ resources:
               - churn
               - --git_sha
               - ${var.git_sha}
+          schedule:
+            quartz_cron_expression: "0 0 6 * * ?"  # Daily 6 AM
+            timezone_id: "Australia/Sydney"

@@ -50,7 +50,7 @@ Manual: Create PR and merge to prod
 - Bundle validates
 
 
-### 2. CD - RND (`.github/workflows/cd-dev.yml` for other envs)
+### 2. CD - DEV (`.github/workflows/cd-dev.yml`)
 
 **Triggers**: Push to branch `dev` | `uat` | `preprod` | `prod`
 
@@ -62,28 +62,14 @@ Manual: Create PR and merge to prod
 5. Log deployment info
 
 **Environment-Specific**:
+
+- **dev**: Use `DATABRICKS_HOST_RND` secret
 - **dev**: Use `DATABRICKS_HOST_DEV` secret
 - **uat**: Use `DATABRICKS_HOST_UAT` secret
+- **uat**: Use `DATABRICKS_HOST_PREPROD` secret
 - **prod**: Use `DATABRICKS_HOST_PROD` secret + manual approval gate
 
 ---
-
-## Setting Up Secrets
-
-### In GitHub Repository
-
-Go to: **Settings → Secrets and variables → Actions**
-
-Add these secrets:
-
-```
-DATABRICKS_TOKEN              # Your Databricks PAT
-DATABRICKS_HOST_RND           # https://adb-xxxx.12.azuredatabricks.net
-DATABRICKS_HOST_DEV           # https://adb-yyyy.12.azuredatabricks.net
-DATABRICKS_HOST_UAT           # https://adb-zzzz.12.azuredatabricks.net
-DATABRICKS_HOST_PREPROD       # https://adb-aaaa.12.azuredatabricks.net
-DATABRICKS_HOST_PROD          # https://adb-bbbb.12.azuredatabricks.net
-```
 
 ---
 
@@ -128,6 +114,20 @@ git switch uat
 git merge dev
 git push origin uat
 # CD-UAT deploys to UAT automatically
+```
+
+### 4. Pre Production Deployment (PREPROD)
+
+**Requires approval gate**:
+
+```bash
+git switch preprod
+git merge uat
+git push origin preprod
+# GitHub environment protection blocks automatic deployment
+# Review deployment in GitHub UI
+# Click "Approve and deploy"
+# CD-PREPROD deploys to PREPROD
 ```
 
 ### 4. Production Deployment (PROD)
@@ -187,28 +187,6 @@ Each environment gets its own:
 - Catalog (dev, uat, prod)
 - Workspace path (`/Workspace/Repos/ngm_mlops-{env}`)
 - Job schedules
-
-### Environment Isolation
-
-```yaml
-# databricks.yml targets configuration
-targets:
-  dev:
-    variables:
-      catalog_name: dev      # All jobs use 'dev' catalog
-      git_sha: "dev-build"
-    workspace:
-      host: ${var.databricks_host}
-      root_path: /Workspace/Repos/ngm_mlops-dev
-  
-  prod:
-    variables:
-      catalog_name: prod     # All jobs use 'prod' catalog
-      git_sha: "prod-build"
-    workspace:
-      host: ${var.databricks_host}
-      root_path: /Workspace/Repos/ngm_mlops-prod
-```
 
 ---
 
@@ -365,5 +343,3 @@ databricks runs get-output --run-id {run_id}
 ## Next Steps
 
 - [Model Lifecycle](./MODEL-LIFECYCLE.md)
-- [Deployment Troubleshooting](./TROUBLESHOOTING.md)
-- [Advanced Configuration](./ADVANCED-CONFIG.md)
