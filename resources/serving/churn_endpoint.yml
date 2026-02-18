@@ -7,4 +7,4 @@ resources:
           - model_name: ngm_churn_model
             model_version: 5 # Champion"=
             workload_size: Small
-            scale_to_zero_enabled: true
+            scale_to_zero_enabled: true # when there's no traffic, the endpoint shuts down compute to save costs, and spins back up on the next request

@@ -43,9 +43,9 @@ jobs:
 
       - name: Validate imports
         run: |
-          python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
-          python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
-          python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
+          python -c "from src.common.config import load_model_config; print('Config module loaded')"
+          python -c "from src.common.logger import setup_logging; print('Logger module loaded')"
+          python -c "from src.common.exceptions import PipelineError; print('Exceptions module loaded')"
 
       - name: Validate Databricks bundle
         run: |
@@ -61,6 +61,6 @@ jobs:
 
       - name: Deployment complete
         run: |
-          echo "✅ Deployment to Dev completed successfully"
-          echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Target: Dev (dev catalog)"
+          echo "Deployment to Dev completed successfully"
+          echo "Git SHA: ${{ github.sha }}"
+          echo "Target: Dev (dev catalog)"

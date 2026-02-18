@@ -2,9 +2,9 @@
 -- This SQL uses Databricks SQL syntax (not BigQuery)
 -- But reads from BigQuery tables via foreign catalog
 
-CREATE OR REPLACE TABLE {output_table}
-USING DELTA
-AS
+--CREATE OR REPLACE TABLE {output_table}
+--USING DELTA
+--AS
 
 WITH required_accounts AS (
   SELECT a.AccountNumber 

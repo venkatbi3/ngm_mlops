@@ -19,11 +19,11 @@ The databricks CLI bundles top level is defined by file `ngm_mlops/databricks.ym
 During databricks CLI bundles deployment, the root config file will be loaded, validated and deployed to workspace provided by the environment together with all the included resources.
 
 ML Resource Configurations in this directory:
- - model workflow (`ngm_mlops/resources/model-workflow-resource.yml`)
- - batch inference workflow (`ngm_mlops/resources/batch-inference-workflow-resource.yml`)
- - monitoring resource and workflow (`ngm_mlops/resources/monitoring-resource.yml`)
- - feature engineering workflow (`ngm_mlops/resources/feature-engineering-workflow-resource.yml`)
- - model definition and experiment definition (`ngm_mlops/resources/ml-artifacts-resource.yml`)
+ - Train workflow (`ngm_mlops/resources/jobs/train.yml`)
+ - batch inference workflow (`ngm_mlops/resources/jobs/batch_inference.yml`)
+ - Validate workflow (`ngm_mlops/resources/jobs/validate.yml`)
+ - feature engineering workflow (`ngm_mlops/resources/jobs/feature_engineering.yml`)
+
 
 
 ### Deployment Config & CI/CD integration
@@ -32,23 +32,27 @@ Deployment configs of different deployment targets share the general ML resource
 This project ships with CI/CD workflows for developing and deploying ML resource configurations based on deployment config.
 
 For Model Registry in Unity Catalog, we expect a catalog to exist with the name of the deployment target by default. For example, if the deployment target is `dev`, we expect a catalog named `dev` to exist in the workspace. 
-If you want to use different catalog names, please update the `targets` declared in the `ngm_mlops/databricks.yml` and `ngm_mlops/resources/ml-artifacts-resource.yml` files.
-If changing the `staging`, `prod`, or `test` deployment targets, you'll need to update the workflows located in the `.github/workflows` directory.
+If you want to use different catalog names, please update the `targets` declared in the `ngm_mlops/databricks.yml` file.
+If changing the `uat`, `preprod`, or `prod` deployment targets, you'll need to update the workflows located in the `.github/workflows` directory.
 
 
 | Deployment Target | Description                                                                                                                                                                                                                           | Databricks Workspace | Model Name                          | Experiment Name                                |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|-------------------------------------|------------------------------------------------|
+| rnd         | The `rnd` deployment target is used by ML engineers to deploy ML resources to development workspace with `rnd` configs. The config is for ML project development purposes.                                                           | rnd workspace        | rnd-ngm_mlops-model     | /rnd-ngm_mlops-experiment     |
 | dev         | The `dev` deployment target is used by ML engineers to deploy ML resources to development workspace with `dev` configs. The config is for ML project development purposes.                                                           | dev workspace        | dev-ngm_mlops-model     | /dev-ngm_mlops-experiment     |
-| staging     | The `staging` deployment target is part of the CD pipeline. Latest main content will be deployed to staging workspace with `staging` config.                                                             | staging workspace    | staging-ngm_mlops-model | /staging-ngm_mlops-experiment |
+| uat        | The `uat` deployment target is part of the CI pipeline. For changes targeting the main branch, upon making a PR, an integration test will be triggered and ML resources deployed to the uat workspace defined under `uat` deployment target. | uat workspace    | uat-ngm_mlops-model    | /uat-ngm_mlops-experiment    |
+| preprod     | The `preprod` deployment target is part of the CD pipeline. Latest main content will be deployed to preprod workspace with `preprod` config.                                                             | preprod workspace    | preprod-ngm_mlops-model | /preprod-ngm_mlops-experiment |
 | prod        | The `prod` deployment target is part of the CD pipeline. Latest release content will be deployed to prod workspace with `prod` config.                                                                      | prod workspace       | prod-ngm_mlops-model    | /prod-ngm_mlops-experiment    |
-| test        | The `test` deployment target is part of the CI pipeline. For changes targeting the main branch, upon making a PR, an integration test will be triggered and ML resources deployed to the staging workspace defined under `test` deployment target. | staging workspace    | test-ngm_mlops-model    | /test-ngm_mlops-experiment    |
 
-During ML code development, you can deploy local ML resource configurations together with ML code to the a Databricks workspace to run the training, model validation or batch inference pipelines. The deployment will use `dev` config by default.
+
+During ML code development, you can deploy local ML resource configurations together with ML code to the a Databricks workspace to run the training, model validation or batch inference pipelines. The deployment will use `rnd` config by default.
 
 You can open a PR (pull request) to modify ML code or the resource config against main branch.
-The PR will trigger Python unit tests, followed by an integration test executed on the staging workspace, as defined under the `test` environment resource. 
+The PR will trigger Python unit tests, followed by an integration test executed on the dev workspace, as defined under the `dev` environment resource. 
 
-Upon merging a PR to the main branch, the main branch content will be deployed to the staging workspace with `staging` environment resource configurations.
+Upon merging a PR to the main branch, the main branch content will be deployed to the uat workspace with `uat` environment resource configurations.
+
+Upon merging code into the release branch, the release branch content will be deployed to preprod workspace with `preprod` environment resource configurations.
 
 Upon merging code into the release branch, the release branch content will be deployed to prod workspace with `prod` environment resource configurations.
 ![ML resource config diagram](../../docs/images/mlops-stack-deploy.png)
@@ -77,7 +81,7 @@ Alternatively, you can use the other approaches described in the [databricks CLI
 ### Destroy ML resource configurations
 After development is done, you can run `databricks bundle destroy` to destroy (remove) the defined Databricks resources in the dev workspace. Any model version with `Production` or `Staging` stage will prevent the model from being deleted. Please update the version stage to `None` or `Archived` before destroying the ML resources.
 ## Set up CI/CD
-Please refer to [mlops-setup](../../docs/mlops-setup.md#configure-cicd) for instructions to set up CI/CD.
+Please refer to [mlops-setup](../docs/CI-CD-GUIDE.md) for instructions to set up CI/CD.
 
 ## Deploy initial ML resources
 After completing the prerequisites, create and push a PR branch adding all files to the Git repo:

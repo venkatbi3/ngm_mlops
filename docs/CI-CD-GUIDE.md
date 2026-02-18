@@ -4,72 +4,46 @@ This guide explains the GitHub Actions workflows and deployment process.
 
 ---
 
-## Workflow Overview
-
+## Gitbhub Workflow Overview
+The full promotion flow:
 ```
-Commit to main
-    ↓
-[CI] Run unit tests & validate
-    ↓
-[CD-RND] Auto-deploy to RND (Research & Development)
-    ↓
-Manual: Create PR and merge to dev
-    ↓
-[CD-DEV] Auto-deploy to DEV (Development)
-    ↓
-Manual: Create PR and merge to uat
-    ↓
-[CD-UAT] Auto-deploy to UAT (User Acceptance Testing)
-    ↓
-Manual: Create PR and merge to preprod
-    ↓
-[CD-PREPROD] Auto-deploy to PREPROD (Pre-Production)
-    ↓
-Manual: Create PR and merge to prod
-    ↓
-[CD-PROD] Auto-deploy to PROD (Production)
+Developer pushes code to GitHub
+  ↓
+CI runs (GitHub Actions) (`.github/workflows/ci.yml`)
+  ├── Linting (code quality)
+  ├── Unit tests  (`pytest tests/unit/`)
+  ├── Builds wheel artifact
+  └── Auto-deploys to RND environment
+  
+  ↓ (manual approval)
+  
+CD to DEV (`.github/workflows/cd-dev.yml`)
+  ├── Integration tests  (`pytest tests/integration/`)
+  ├── Deploys to DEV Databricks workspace
+  └── Jobs remain PAUSED (manual trigger only)
+  
+  ↓ (manual approval)
+  
+CD to UAT (`.github/workflows/cd-uat.yml`)
+  ├── Model validation checks
+  ├── Business metric thresholds
+  └── Smoke tests with real data
+  
+  ↓ (manual approval + sign-off)
+  
+CD to PREPROD (`.github/workflows/cd-preprod.yml`)
+  ├── Full production workload simulation
+  ├── Performance benchmarks
+  └── Drift detection enabled
+  
+  ↓ (manager approval required)
+  
+CD to PROD (`.github/workflows/cd-prod.yml`)
+  ├── Blue-green deployment
+  ├── Jobs set to UNPAUSED (live schedule)
+  ├── Monitoring alerts activated
+  └── Automatic rollback on failure
 ```
-
----
-
-## GitHub Workflows
-
-### 1. CI (`.github/workflows/ci.yml`)
-
-**Triggers**: Push to `main` | Pull requests to `main`
-
-**Steps**:
-1. Checkout code
-2. Run unit tests (`pytest tests/unit/`)
-3. Validate Python imports
-4. (If main branch): Deploy to RND auto-deploy
-
-**Success Criteria**:
-- All tests pass
-- No import errors
-- Bundle validates
-
-
-### 2. CD - DEV (`.github/workflows/cd-dev.yml`)
-
-**Triggers**: Push to branch `dev` | `uat` | `preprod` | `prod`
-
-**Each environment runs**:
-1. Checkout code
-2. Install dependencies
-3. Validate bundle configuration
-4. Deploy using Databricks CLI bundles
-5. Log deployment info
-
-**Environment-Specific**:
-
-- **rnd**: Use `DATABRICKS_HOST_RND` secret
-- **dev**: Use `DATABRICKS_HOST_DEV` secret
-- **uat**: Use `DATABRICKS_HOST_UAT` secret
-- **preprod**: Use `DATABRICKS_HOST_PREPROD` secret
-- **prod**: Use `DATABRICKS_HOST_PROD` secret + manual approval gate
-
----
 
 ---
 
@@ -312,7 +286,7 @@ python_wheel_task
   └── package_name: ngm_mlops     →  finds the installed wheel
         └── entry_point: ngm-train  →  looks up [project.scripts] in pyproject.toml
                 └── "ngm-train = pipelines.train:main"  →  calls main() in src/pipelines/train.py
----
+```
 
 ## Deployment Monitoring
 

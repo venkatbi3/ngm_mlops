@@ -141,12 +141,12 @@ git push origin prod  # Triggers cd-prod-branch.yml → deploy to PROD
 
 | Workflow File | Trigger | Deploys To | Status |
 |---------------|---------|-----------|--------|
-| ci.yml | Push to main | RND | ✅ Auto |
-| cd-dev.yml | Push to dev | DEV | ✅ Manual |
-| cd-uat-branch.yml | Push to uat | UAT | ✅ Manual |
-| cd-preprod.yml | Push to preprod | PREPROD | ✅ Manual |
-| cd-prod-branch.yml | Push to prod | PROD | ✅ Manual |
-| cd-environments.yml | Manual dispatch | Any | ✅ Manual |
+| ci.yml | Push to main | RND |   Auto |
+| cd-dev.yml | Push to dev | DEV |   Manual |
+| cd-uat-branch.yml | Push to uat | UAT |   Manual |
+| cd-preprod.yml | Push to preprod | PREPROD |   Manual |
+| cd-prod-branch.yml | Push to prod | PROD |   Manual |
+| cd-environments.yml | Manual dispatch | Any |   Manual |
 
 ## Workspace Paths (Databricks)
 - RND: `~/Repos/ngm_mlops-rnd`
