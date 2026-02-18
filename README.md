@@ -33,17 +33,21 @@ ngm_mlops/
 │   │   └── mlflow_utils.py     # MLflow helpers
 │   │
 │   ├── models/                 # Per-model implementations
-│   │   ├── base.py             # Base classes
+│   │   ├── base.py             # defines the interface that every component in your MLOps framework must follow
 │   │   ├── registry.py         # Model registry management
 │   │   ├── churn/              # Churn model
 │   │   │   ├── trainer.py
 │   │   │   ├── inference.py
-│   │   │   └── validator.py
+│   │   │   ├── validator.py
+│   |   |   ├── features.py      
+│   │   |   └── sql/            # SQL logic 
 │   │   │
 │   │   └── fraud/              # Fraud model
 │   │       ├── trainer.py
 │   │       ├── inference.py
-│   │       └── validator.py
+│   │       ├── validator.py
+│   |       ├── features.py
+│   │       └── sql/            # SQL logic 
 │   │
 │   └── pipelines/              # Orchestration entry points
 │       ├── train.py            # Training pipeline
@@ -52,6 +56,7 @@ ngm_mlops/
 │       └── monitor.py          # Monitoring pipeline
 │
 ├── resources/                  # IaC - Databricks resources
+│   ├── serving/                # Model end points
 │   └── jobs/                   # Job definitions
 │       ├── train.yml
 │       ├── validate.yml
@@ -59,16 +64,21 @@ ngm_mlops/
 │       └── feature_engineering.yml
 │
 ├── tests/                      # Test suite
+│   ├── integration/
+│   |   └── test_pipelline.py
 │   └── unit/
+│       ├── test_trainer.py
 │       └── test_smoke.py
 │
 ├── docs/                       # Documentation
 │   ├── ARCHITECTURE.md         # This file
 │   ├── CONFIGURATION-GUIDE.md  # Setup guide
-│   ├── CI-CD-GUIDE.md         # Workflow guide
-│   └── MODEL-LIFECYCLE.md     # Model flow
+│   ├── CI-CD-GUIDE.md          # Workflow guide
+│   ├── ENVIRONMENT-STRATEGY.md # Environment Strategy guide
+│   ├── TESTING-SUITE.md        # Testing Suite
+│   └── MODEL-LIFECYCLE.md      # Model flow guide
 │
-├── databricks.yml             # Bundle configuration (environment-driven)
+├── databricks.yml              # Bundle configuration (environment-driven)
 ├── pyproject.toml
 ├── requirements.txt
 └── README.md
