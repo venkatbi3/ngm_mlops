@@ -17,8 +17,8 @@ contains additional details on how ML pipelines are tested and deployed across e
 ```
 ngm_mlops/
 ├── .github/workflows/          # CI/CD automation
-│   ├── ci.yml                  # Unit tests + RND deploy
-│   ├── cd-dev.yml              # DEV deployment
+│   ├── cd-rnd.yml              # Unit tests + RND deploy
+│   ├── cd-dev.yml              # Integration tests + DEV deployment
 │   ├── cd-uat.yml              # UAT deployment
 │   ├── cd-preprod.yml          # PREPROD deployment
 │   └── cd-prod.yml             # PROD deployment + gates
@@ -87,7 +87,7 @@ ngm_mlops/
 
 ## Other Documents
 
-→ [Architecture](./docs/CONFIGURATION-GUIDE.md) - Overall Architecture
+→ [Architecture](./docs/ARCHITECTURE.md) - Overall Architecture
 
 → [Configuration Guide](./docs/CONFIGURATION-GUIDE.md) - Set up environments
 

@@ -1,12 +1,25 @@
-# Testing and linting
-pytest>=7.1.2
-pytest-cov>=4.0.0
-pytest-mock>=3.10.0
+# Testing dependencies for NGM MLOps
+# Core Testing and linting
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.0  # for parallel test execution
+pytest-timeout>=2.1.0
+pytest-mock>=3.11.0
 
 # Code quality
-black>=23.0.0
-flake8>=6.0.0
-mypy>=1.0.0
+flake8>=6.1.0
+black>=23.7.0
+isort>=5.12.0
+mypy>=1.5.0
+pylint>=2.17.0
+
+# Coverage reporting
+coverage[toml]>=7.3.0
+
+# Additional testing utilities
+hypothesis>=6.82.0  # for property-based testing
+responses>=0.23.0  # for mocking HTTP requests
+freezegun>=1.2.0  # for mocking datetime
 
 # Project dependencies (from requirements.txt)
 -r requirements.txt

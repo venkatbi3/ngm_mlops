@@ -1,10 +1,10 @@
-name: CI and Deploy
+name: CI and RND Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ rnd ]
   pull_request:
-    branches: [ main ]
+    branches: [ rnd ]
 
 env:
   # Get Databricks host from GitHub secrets or use default
@@ -12,7 +12,7 @@ env:
 
 jobs:
   test:
-    name: Run Git Hub Actionsfind CI Tests
+    name: Run Git Hub Actions and CI Tests
     runs-on: ubuntu-latest  # Uses GitHub-hosted Ubuntu runner
 
     steps:
@@ -29,10 +29,6 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
-        run: |
-          pytest tests/ -v
-
       - name: Build wheel
         run: |
           pip install build
@@ -44,11 +40,16 @@ jobs:
           name: ngm_mlops_wheel
           path: dist/*.whl
 
+      - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
+        run: |
+          pytest tests/ -v
+
+
   deploy-rnd:
-    name: Deploy to RND (auto on main)
+    name: Deploy to RND (auto on rnd)
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && success() # Only on main branch AND if tests passed
+    if: github.ref == 'refs/heads/rnd' && success() # Only on rnd branch AND if tests passed
 
     env:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}

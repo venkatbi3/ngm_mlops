@@ -141,7 +141,7 @@ git push origin prod  # Triggers cd-prod-branch.yml → deploy to PROD
 
 | Workflow File | Trigger | Deploys To | Status |
 |---------------|---------|-----------|--------|
-| ci.yml | Push to main | RND |   Auto |
+| cd-rnd.yml | Push to main | RND |   Auto |
 | cd-dev.yml | Push to dev | DEV |   Manual |
 | cd-uat-branch.yml | Push to uat | UAT |   Manual |
 | cd-preprod.yml | Push to preprod | PREPROD |   Manual |

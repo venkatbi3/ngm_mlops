@@ -9,7 +9,7 @@ The full promotion flow:
 ```
 Developer pushes code to GitHub
   ↓
-CI runs (GitHub Actions) (`.github/workflows/ci.yml`)
+CI runs (GitHub Actions) (`.github/workflows/cd-rnd.yml`)
   ├── Linting (code quality)
   ├── Unit tests  (`pytest tests/unit/`)
   ├── Builds wheel artifact
@@ -238,7 +238,7 @@ prod (manual + approval)
 
 ```bash
 # Watch workflow status
-gh run list --workflow=ci.yml --limit 5
+gh run list --workflow=cd-rnd.yml --limit 5
 
 # Get detailed logs
 gh run view {run_id} -v
