@@ -14,6 +14,7 @@ jobs:
   test:
     name: Run Git Hub Actions and CI Tests
     runs-on: ubuntu-latest  # Uses GitHub-hosted Ubuntu runner
+    if: github.event_name == 'pull_request'  # Only run on PRs
 
     steps:
       - name: Checkout
