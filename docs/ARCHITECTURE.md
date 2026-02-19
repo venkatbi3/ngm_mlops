@@ -71,8 +71,8 @@ This document describes the enterprise MLOps architecture for Azure Databricks.
 ```
 ngm_mlops/
 ├── .github/workflows/          # CI/CD automation
-│   ├── ci.yml                  # Unit tests + RND deploy
-│   ├── cd-dev.yml              # DEV deployment
+│   ├── cd-rnd.yml              # Unit tests + RND deploy
+│   ├── cd-dev.yml              # Integration tests + DEV deployment
 │   ├── cd-uat.yml              # UAT deployment
 │   ├── cd-preprod.yml          # PREPROD deployment
 │   └── cd-prod.yml             # PROD deployment + gates
