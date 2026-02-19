@@ -1,0 +1,17 @@
+name: feature_engineering_job
+tasks:
+  - task_key: engineer_features
+    python_wheel_task:
+      package_name: ngm_mlops
+      entry_point: ngm-monitor
+      parameters: ["--env", "${var:environment}"]
+    new_cluster:
+      spark_version: "13.3.x-scala2.12"
+      node_type_id: "i3.xlarge"
+      num_workers: 2
+    timeout_seconds: 3600
+
+schedule:
+  quartz_cron_expression: "0 0 18 * * ?"
+  timezone_id: "UTC"
+  pause_status: UNPAUSED

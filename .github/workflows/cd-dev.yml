@@ -5,12 +5,47 @@ on:
     branches: [ dev ]
 
 env:
-  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV || 'https://adb-xxxx.xx.azuredatabricks.net' }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} #${{ secrets.DATABRICKS_HOST_DEV || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
+  test:
+    name: Run Git Hub Actions and CI Tests
+    runs-on: ubuntu-latest  # Uses GitHub-hosted Ubuntu runner
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4 
+        with:
+          python-version: '3.11' #Installs Python 3.11 on the runner
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Build wheel
+        run: |
+          pip install build
+          python -m build --wheel
+      
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ngm_mlops_wheel
+          path: dist/*.whl
+
+      - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
+        run: |
+          pytest tests/ -v
+
   deploy-dev:
     name: Deploy to Dev
+    needs: test
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && success() # Only on dev branch AND if tests passed
 
     env:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
@@ -38,11 +73,14 @@ jobs:
           echo "=== Databricks CLI Version ==="
           databricks --version
 
+      - name: Build wheel
+        run: python -m build --wheel
+
       - name: Validate imports
         run: |
-          python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
-          python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
-          python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
+          python -c "from src.common.config import load_model_config; print('Config module loaded')"
+          python -c "from src.common.logger import setup_logging; print('Logger module loaded')"
+          python -c "from src.common.exceptions import PipelineError; print('Exceptions module loaded')"
 
       - name: Validate Databricks bundle
         run: |
@@ -58,6 +96,6 @@ jobs:
 
       - name: Deployment complete
         run: |
-          echo "✅ Deployment to Dev completed successfully"
-          echo "📦 Git SHA: ${{ github.sha }}"
-          echo "🔗 Target: Dev (dev catalog)"
+          echo "Deployment to Dev completed successfully"
+          echo "Git SHA: ${{ github.sha }}"
+          echo "Target: Dev (dev catalog)"

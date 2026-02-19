@@ -2,9 +2,11 @@
 -- This SQL uses Databricks SQL syntax (not BigQuery)
 -- But reads from BigQuery tables via foreign catalog
 
-CREATE OR REPLACE TABLE {output_table}
-USING DELTA
-AS
+--CREATE OR REPLACE TABLE {output_table}
+--USING DELTA
+--AS
+
+
 
 WITH required_accounts AS (
   SELECT a.AccountNumber 
@@ -31,7 +33,7 @@ offset_balances AS (
       EndOfDayDate,
       OffsetAccountNumber
     FROM {bq_catalog}.{bq_dataset}.LoanAccountOffsetAccountRelationship 
-    WHERE EndOfDayDate BETWEEN '{start_date}' AND '{end_date}'
+    WHERE DATE_ADD(EndOfDayDate,1) BETWEEN '{start_date}' AND '{end_date}'
       AND GeneralAccountTypeDescription = 'Home Loan'
       AND Brand = 'NP'
       AND Source = 'HOST_CBS'
@@ -39,6 +41,9 @@ offset_balances AS (
   LEFT JOIN {bq_catalog}.{bq_dataset}.Account ab
     ON oa.OffsetAccountNumber = ab.AccountNumber
     AND oa.EndOfDayDate = ab.EndOfDayDate
+    AND ab.Brand = 'NP'
+    AND ab.Source = 'HOST_CBS'
+  WHERE DATE_ADD(ab.EndOfDayDate, 1) BETWEEN '{start_date}' AND '{end_date}'
     AND ab.Brand = 'NP'
     AND ab.Source = 'HOST_CBS'
   GROUP BY 1, 2
@@ -76,6 +81,63 @@ SELECT
   -- Balance slope and relative change
   (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), BalanceAmount) OVER w6m) / 
     NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS BalanceSlope,
+					   
+				   
+																														   
+																															 
+																															
+						   
+		
+				   
+																																						   
+																																		   
+					   
+				   
+																															 
+																															   
+																															  
+						   
+		
+				   
+																																						 
+																																		   
+					   
+				   
+																														   
+																															 
+																															
+						   
+		
+				   
+																																						
+																																		   
+					 
+				   
+																														  
+																															
+																														   
+						
+		
+				   
+																																								
+																																		   
+				   
+				   
+																																  
+																																	
+																																   
+					   
+		
+				   
+																																						 
+																																		   
+							 
+				   
+																														   
+																															 
+																															
+							 
+						   
   
   (AVG(BalanceAmount) OVER w3m_recent - AVG(BalanceAmount) OVER w6m_older) / 
     NULLIF(AVG(BalanceAmount) OVER w6m_older, 0) AS BalanceRelChange,

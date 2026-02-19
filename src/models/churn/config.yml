@@ -1,11 +1,41 @@
+# Churn Model Configuration
+# Environment-specific overrides: Use Databricks variables or environment files per deployment
+
+model_key: churn
+registered_model_name: churn_model
+trainer_class: ChurnTrainer
+validator_class: ChurnValidator
+inference_class: ChurnInference
+
+data:
+  features_table: "ngm_ml_rnd.features.churn_features"  # Override per environment
+  label_col: "churn_label"
+
+features:
+  start_date: "2019-10-01"              # Feature engineering date range
+  end_date: "2025-03-01"
+
+metrics:
+  auc_threshold: 0.75                   # Min AUC to pass validation
+  min_recall: 0.80                      # For fraud detection
+
+hyperparameters:
+  n_estimators: 100
+  max_depth: 15
+
+output:
+  catalog: "ngm_ml_rnd"  # Override per environment (ngm_ml_dev, ngm_ml_uat, ngm_ml_prod)
+  schema: "predictions"
+  table: "churn_scores"
+
+# Data source configuration
 bigquery:
   catalog: "bigquery_catalog"
   dataset: "Integration"
 
-databricks:
-  catalog: "ngm_ml_rnd"
-  schema: "features"
+# Legacy Databricks source (for data pull)
+databricks_source:
+  catalog: "source_catalog"  
+  schema: "raw_data"
 
-features:
-  start_date: "2019-10-01"
-  end_date: "2025-03-01"
+

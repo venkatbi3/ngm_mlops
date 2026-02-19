@@ -1,18 +1,18 @@
-name: CI and Deploy
+name: CI and RND Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ rnd ]
   pull_request:
-    branches: [ main ]
+    branches: [ rnd ]
 
 env:
   # Get Databricks host from GitHub secrets or use default
-  DATABRICKS_HOST: https://adb-1108654228307752.12.azuredatabricks.net #${{ secrets.DATABRICKS_HOST_RND || 'https://adb-xxxx.xx.azuredatabricks.net' }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} #${{ secrets.DATABRICKS_HOST_RND || 'https://adb-xxxx.xx.azuredatabricks.net' }}
 
 jobs:
   test:
-    name: Run Git Hub Actionsfind CI Tests
+    name: Run Git Hub Actions and CI Tests
     runs-on: ubuntu-latest  # Uses GitHub-hosted Ubuntu runner
 
     steps:
@@ -29,15 +29,27 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Build wheel
+        run: |
+          pip install build
+          python -m build --wheel
+      
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ngm_mlops_wheel
+          path: dist/*.whl
+
       - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
         run: |
-          pytest -q --tb=short
+          pytest tests/ -v
+
 
   deploy-rnd:
-    name: Deploy to RND (auto on main)
+    name: Deploy to RND (auto on rnd)
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && success() # Only on main branch AND if tests passed
+    if: github.ref == 'refs/heads/rnd' && success() # Only on rnd branch AND if tests passed
 
     env:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
@@ -69,9 +81,9 @@ jobs:
 
       - name: Validate imports
         run: |
-          python -c "from src.common.config import load_model_config; print('✓ Config module loaded')"
-          python -c "from src.common.logger import setup_logging; print('✓ Logger module loaded')"
-          python -c "from src.common.exceptions import PipelineError; print('✓ Exceptions module loaded')"
+          python -c "from src.common.config import load_model_config; print('Config module loaded')"
+          python -c "from src.common.logger import setup_logging; print('Logger module loaded')"
+          python -c "from src.common.exceptions import PipelineError; print('Exceptions module loaded')"
 
       - name: Run tests
         run: pytest -v tests/unit/test_smoke.py --tb=short
@@ -90,4 +102,5 @@ jobs:
       - name: Deployment complete
         run: |
           echo " Deployment to RND completed successfully"
-          echo " Git SHA: ${{ github.sha }}"
+          echo "Git SHA: ${{ github.event.inputs.git_sha || github.sha }}"
+          echo "Target: RND (rnd catalog)"

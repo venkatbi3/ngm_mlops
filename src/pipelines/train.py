@@ -2,12 +2,17 @@
 Model training pipeline.
 Loads data, trains model, evaluates, and logs to MLflow.
 """
+import argparse
 import logging
 import sys
 import os
 import importlib
 import mlflow
 from datetime import datetime
+from pathlib import Path
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.common.config import load_model_config
 from src.common.logger import get_logger
@@ -16,15 +21,31 @@ from src.common.exceptions import DataLoadError, ModelTrainingError, ConfigError
 logger = get_logger(__name__)
 
 
-def main(argv=None):
+def main():
     """Main training pipeline."""
-    argv = argv or sys.argv
+    parser = argparse.ArgumentParser(
+        description="Train ML models",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        required=True,
+        help="Model key to train (e.g., churn, fraud)"
+    )
+    parser.add_argument(
+        "--env",
+        type=str,
+        default="dev",
+        choices=["dev", "uat", "preprod", "prod"],
+        help="Environment to train in (default: dev)"
+    )
     
-    if len(argv) < 2:
-        raise ConfigError("MODEL_KEY argument required (e.g., python train.py churn)")
+    args = parser.parse_args()
+    model_key = args.model
+    environment = args.env
     
-    model_key = argv[1]
-    logger.info(f"Starting training pipeline for model: {model_key}")
+    logger.info(f"Starting training pipeline for model: {model_key} in {environment}")
     
     # Load configuration
     try:
@@ -47,6 +68,7 @@ def main(argv=None):
             # Log configuration
             mlflow.log_params({
                 "model_key": model_key,
+                "environment": environment,
                 "registered_model_name": config.registered_model_name,
                 "trainer_class": config.trainer_class,
             })

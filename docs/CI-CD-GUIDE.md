@@ -4,85 +4,45 @@ This guide explains the GitHub Actions workflows and deployment process.
 
 ---
 
-## Workflow Overview
-
+## Gitbhub Workflow Overview
+The full promotion flow:
 ```
-Commit to main
-    ↓
-[CI] Run unit tests & validate
-    ↓
-[CD-RND] Auto-deploy to RND (Research & Development)
-    ↓
-Manual: Create PR and merge to dev
-    ↓
-[CD-DEV] Auto-deploy to DEV (Development)
-    ↓
-Manual: Create PR and merge to uat
-    ↓
-[CD-UAT] Auto-deploy to UAT (User Acceptance Testing)
-    ↓
-Manual: Create PR and merge to preprod
-    ↓
-[CD-PREPROD] Auto-deploy to PREPROD (Pre-Production)
-    ↓
-Manual: Create PR and merge to prod
-    ↓
-[CD-PROD] Auto-deploy to PROD (Production)
-```
-
----
-
-## GitHub Workflows
-
-### 1. CI (`.github/workflows/ci.yml`)
-
-**Triggers**: Push to `main` | Pull requests to `main`
-
-**Steps**:
-1. Checkout code
-2. Run unit tests (`pytest tests/unit/`)
-3. Validate Python imports
-4. (If main branch): Deploy to RND auto-deploy
-
-**Success Criteria**:
-- All tests pass
-- No import errors
-- Bundle validates
-
-
-### 2. CD - RND (`.github/workflows/cd-dev.yml` for other envs)
-
-**Triggers**: Push to branch `dev` | `uat` | `preprod` | `prod`
-
-**Each environment runs**:
-1. Checkout code
-2. Install dependencies
-3. Validate bundle configuration
-4. Deploy using Databricks CLI bundles
-5. Log deployment info
-
-**Environment-Specific**:
-- **dev**: Use `DATABRICKS_HOST_DEV` secret
-- **uat**: Use `DATABRICKS_HOST_UAT` secret
-- **prod**: Use `DATABRICKS_HOST_PROD` secret + manual approval gate
-
----
-
-## Setting Up Secrets
-
-### In GitHub Repository
-
-Go to: **Settings → Secrets and variables → Actions**
-
-Add these secrets:
-
-```
-DATABRICKS_TOKEN              # Your Databricks PAT
-DATABRICKS_HOST_RND           # https://adb-xxxx.12.azuredatabricks.net
-DATABRICKS_HOST_DEV           # https://adb-yyyy.12.azuredatabricks.net
-DATABRICKS_HOST_UAT           # https://adb-zzzz.12.azuredatabricks.net
-DATABRICKS_HOST_PREPROD       # https://adb-aaaa.12.azuredatabricks.net
-DATABRICKS_HOST_PROD          # https://adb-bbbb.12.azuredatabricks.net
+Developer pushes code to GitHub
+  ↓
+CI runs (GitHub Actions) (`.github/workflows/cd-rnd.yml`)
+  ├── Linting (code quality)
+  ├── Unit tests  (`pytest tests/unit/`)
+  ├── Builds wheel artifact
+  └── Auto-deploys to RND environment
+  
+  ↓ (manual approval)
+  
+CD to DEV (`.github/workflows/cd-dev.yml`)
+  ├── Integration tests  (`pytest tests/integration/`)
+  ├── Deploys to DEV Databricks workspace
+  └── Jobs remain PAUSED (manual trigger only)
+  
+  ↓ (manual approval)
+  
+CD to UAT (`.github/workflows/cd-uat.yml`)
+  ├── Model validation checks
+  ├── Business metric thresholds
+  └── Smoke tests with real data
+  
+  ↓ (manual approval + sign-off)
+  
+CD to PREPROD (`.github/workflows/cd-preprod.yml`)
+  ├── Full production workload simulation
+  ├── Performance benchmarks
+  └── Drift detection enabled
+  
+  ↓ (manager approval required)
+  
+CD to PROD (`.github/workflows/cd-prod.yml`)
+  ├── Blue-green deployment
+  ├── Jobs set to UNPAUSED (live schedule)
+  ├── Monitoring alerts activated
+  └── Automatic rollback on failure
 ```
 
 ---
@@ -128,6 +88,20 @@ git switch uat
 git merge dev
 git push origin uat
 # CD-UAT deploys to UAT automatically
+```
+
+### 4. Pre Production Deployment (PREPROD)
+
+**Requires approval gate**:
+
+```bash
+git switch preprod
+git merge uat
+git push origin preprod
+# GitHub environment protection blocks automatic deployment
+# Review deployment in GitHub UI
+# Click "Approve and deploy"
+# CD-PREPROD deploys to PREPROD
 ```
 
 ### 4. Production Deployment (PROD)
@@ -187,28 +161,6 @@ Each environment gets its own:
 - Catalog (dev, uat, prod)
 - Workspace path (`/Workspace/Repos/ngm_mlops-{env}`)
 - Job schedules
-
-### Environment Isolation
-
-```yaml
-# databricks.yml targets configuration
-targets:
-  dev:
-    variables:
-      catalog_name: dev      # All jobs use 'dev' catalog
-      git_sha: "dev-build"
-    workspace:
-      host: ${var.databricks_host}
-      root_path: /Workspace/Repos/ngm_mlops-dev
-  
-  prod:
-    variables:
-      catalog_name: prod     # All jobs use 'prod' catalog
-      git_sha: "prod-build"
-    workspace:
-      host: ${var.databricks_host}
-      root_path: /Workspace/Repos/ngm_mlops-prod
-```
 
 ---
 
@@ -286,7 +238,7 @@ prod (manual + approval)
 
 ```bash
 # Watch workflow status
-gh run list --workflow=ci.yml --limit 5
+gh run list --workflow=cd-rnd.yml --limit 5
 
 # Get detailed logs
 gh run view {run_id} -v
@@ -328,6 +280,14 @@ git push origin prod
 
 ---
 
+The Execution chain : pyproject.toml 
+```
+python_wheel_task
+  └── package_name: ngm_mlops     →  finds the installed wheel
+        └── entry_point: ngm-train  →  looks up [project.scripts] in pyproject.toml
+                └── "ngm-train = pipelines.train:main"  →  calls main() in src/pipelines/train.py
+```
+
 ## Deployment Monitoring
 
 ### In Databricks
@@ -365,5 +325,3 @@ databricks runs get-output --run-id {run_id}
 ## Next Steps
 
 - [Model Lifecycle](./MODEL-LIFECYCLE.md)
-- [Deployment Troubleshooting](./TROUBLESHOOTING.md)
-- [Advanced Configuration](./ADVANCED-CONFIG.md)
