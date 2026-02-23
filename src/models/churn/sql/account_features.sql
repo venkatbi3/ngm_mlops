@@ -18,12 +18,12 @@ WITH required_accounts AS (
     AND a.InterestRateTypeDescription = 'Variable'
     AND (
       a.AccountStatusType = 'Open' 
-      OR a.ClosedDateTimeAEDT BETWEEN '{start_date}' AND DATE_SUB('{end_date}', 1)
+      OR a.ClosedDateTimeAEDT BETWEEN '{start_date}' AND DATE_SUB('{end_date}' INTERVAL 1 DAY)
     )
 ),
 
 offset_balances AS (
-  SELECT 
+  SELECT s
     oa.LoanAccountNumber,
     oa.EndOfDayDate,
     SUM(ab.BalanceAmount) AS OffsetBalance
@@ -33,7 +33,7 @@ offset_balances AS (
       EndOfDayDate,
       OffsetAccountNumber
     FROM {bq_catalog}.{bq_dataset}.LoanAccountOffsetAccountRelationship 
-    WHERE DATE_ADD(EndOfDayDate,1) BETWEEN '{start_date}' AND '{end_date}'
+    WHERE DATE_ADD(EndOfDayDate INTERVAL 1 DAY) BETWEEN '{start_date}' AND '{end_date}'
       AND GeneralAccountTypeDescription = 'Home Loan'
       AND Brand = 'NP'
       AND Source = 'HOST_CBS'
@@ -43,7 +43,7 @@ offset_balances AS (
     AND oa.EndOfDayDate = ab.EndOfDayDate
     AND ab.Brand = 'NP'
     AND ab.Source = 'HOST_CBS'
-  WHERE DATE_ADD(ab.EndOfDayDate, 1) BETWEEN '{start_date}' AND '{end_date}'
+  WHERE DATE_ADD(ab.EndOfDayDate INTERVAL 1 DAY) BETWEEN '{start_date}' AND '{end_date}'
     AND ab.Brand = 'NP'
     AND ab.Source = 'HOST_CBS'
   GROUP BY 1, 2
@@ -79,103 +79,46 @@ SELECT
   OffsetBalance,
   
   -- Balance slope and relative change
-  (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), BalanceAmount) OVER w6m) / 
-    NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS BalanceSlope,
-					   
-				   
-																														   
-																															 
-																															
-						   
-		
-				   
-																																						   
-																																		   
-					   
-				   
-																															 
-																															   
-																															  
-						   
-		
-				   
-																																						 
-																																		   
-					   
-				   
-																														   
-																															 
-																															
-						   
-		
-				   
-																																						
-																																		   
-					 
-				   
-																														  
-																															
-																														   
-						
-		
-				   
-																																								
-																																		   
-				   
-				   
-																																  
-																																	
-																																   
-					   
-		
-				   
-																																						 
-																																		   
-							 
-				   
-																														   
-																															 
-																															
-							 
-						   
-  
-  (AVG(BalanceAmount) OVER w3m_recent - AVG(BalanceAmount) OVER w6m_older) / 
-    NULLIF(AVG(BalanceAmount) OVER w6m_older, 0) AS BalanceRelChange,
+  SAFE_DIVIDE(COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), BalanceAmount) OVER w6m
+    ,VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m) AS BalanceSlope,
+
+  SAFE_DIVIDE(AVG(BalanceAmount) OVER w3m_recent - AVG(BalanceAmount) OVER w6m_older 
+    ,AVG(BalanceAmount) OVER w6m_older) AS BalanceRelChange,
   
   -- Advance slope and relative change
-  (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), InAdvanceAmount) OVER w6m) / 
-    NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS AdvanceSlope,
+  SAFE_DIVIDE(COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), InAdvanceAmount) OVER w6m
+    ,VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m) AS AdvanceSlope,
   
-  (AVG(InAdvanceAmount) OVER w3m_recent - AVG(InAdvanceAmount) OVER w6m_older) / 
-    NULLIF(AVG(InAdvanceAmount) OVER w6m_older, 0) AS AdvanceRelChange,
+  SAFE_DIVIDE(AVG(InAdvanceAmount) OVER w3m_recent - AVG(InAdvanceAmount) OVER w6m_older 
+    ,AVG(InAdvanceAmount) OVER w6m_older) AS AdvanceRelChange,
   
   -- Arrears slope and relative change
-  (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), ArrearsAmount) OVER w6m) / 
-    NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS ArrearsSlope,
+  SAFE_DIVIDE(COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), ArrearsAmount) OVER w6m
+    ,VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m) AS ArrearsSlope,
   
-  (AVG(ArrearsAmount) OVER w3m_recent - AVG(ArrearsAmount) OVER w6m_older) / 
-    NULLIF(AVG(ArrearsAmount) OVER w6m_older, 0) AS ArrearsRelChange,
+  SAFE_DIVIDE(AVG(ArrearsAmount) OVER w3m_recent - AVG(ArrearsAmount) OVER w6m_older 
+    ,AVG(ArrearsAmount) OVER w6m_older) AS ArrearsRelChange,
   
   -- Interest rate slope and relative change
-  (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), InterestRate) OVER w6m) / 
-    NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS RatesSlope,
+  SAFE_DIVIDE(COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), InterestRate) OVER w6m
+    ,VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m) AS RatesSlope,
   
-  (AVG(InterestRate) OVER w3m_recent - AVG(InterestRate) OVER w6m_older) / 
-    NULLIF(AVG(InterestRate) OVER w6m_older, 0) AS RateRelChange,
+  SAFE_DIVIDE(AVG(InterestRate) OVER w3m_recent - AVG(InterestRate) OVER w6m_older 
+    ,AVG(InterestRate) OVER w6m_older) AS RateRelChange,
   
   -- LVR slope and relative change
-  (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), ActualLoanValueRatio) OVER w6m) / 
-    NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS LVRSlope,
+  SAFE_DIVIDE(COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), ActualLoanValueRatio) OVER w6m
+    ,VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m) AS LVRSlope,
   
-  (AVG(ActualLoanValueRatio) OVER w3m_recent - AVG(ActualLoanValueRatio) OVER w6m_older) / 
-    NULLIF(AVG(ActualLoanValueRatio) OVER w6m_older, 0) AS LvrRelChange,
+  SAFE_DIVIDE(AVG(ActualLoanValueRatio) OVER w3m_recent - AVG(ActualLoanValueRatio) OVER w6m_older 
+    ,AVG(ActualLoanValueRatio) OVER w6m_older) AS LvrRelChange,
   
   -- Offset balance slope and relative change
-  (COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), OffsetBalance) OVER w6m) / 
-    NULLIF(VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m, 0) AS OffsetBalanceSlope,
+  SAFE_DIVIDE(COVAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate), OffsetBalance) OVER w6m
+    ,VAR_SAMP(UNIX_TIMESTAMP(EndOfDayDate)) OVER w6m) AS OffsetBalanceSlope,
   
-  (AVG(OffsetBalance) OVER w3m_recent - AVG(OffsetBalance) OVER w6m_older) / 
-    NULLIF(AVG(OffsetBalance) OVER w6m_older, 0) AS OffsetBalRelChange
+  SAFE_DIVIDE(AVG(OffsetBalance) OVER w3m_recent - AVG(OffsetBalance) OVER w6m_older 
+    ,AVG(OffsetBalance) OVER w6m_older) AS OffsetBalRelChange
 
 FROM monthly_account_info
 
