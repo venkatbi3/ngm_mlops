@@ -223,8 +223,8 @@ metrics:
   
 output:
   catalog: uat
-  schema: predictions
-  table: churn_scores
+  schema: schurn
+  table: prediction_scores
 ```
 
 ---

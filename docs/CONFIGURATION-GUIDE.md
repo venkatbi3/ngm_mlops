@@ -55,8 +55,8 @@ inference_class: ChurnInference
 
 data:
   source_catalog: uat                    # Source UC catalog
-  source_schema: raw_data               # Source schema
-  features_table: uat.features.churn_features
+  source_schema: churn               # Source schema
+  features_table: uat.churn.features
   label_col: churn
   start_date: "2024-01-01"
   end_date: "2025-03-01"
@@ -71,8 +71,8 @@ metrics:
 
 output:
   catalog: uat
-  schema: predictions
-  table: churn_scores
+  schema: churn
+  table: scores
 ```
 
 ### Creating a New Model Configuration
@@ -123,11 +123,11 @@ CREATE CATALOG IF NOT EXISTS ngm_ml_uat;
 CREATE CATALOG IF NOT EXISTS ngm_ml_preprod;
 CREATE CATALOG IF NOT EXISTS ngm_ml_prod;
 
--- Create schemas
-CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.raw_data;
-CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.features;
-CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.predictions;
-CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.monitoring;
+-- Create schemas per model and one additional schema for shared_features
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.shared_features;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.churn;
+CREATE SCHEMA IF NOT EXISTS ngm_ml_rnd.fraud;
+
 
 -- Similar for dev, uat, preprod and prod
 ```

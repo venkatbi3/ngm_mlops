@@ -10,6 +10,9 @@ tasks:
       node_type_id: "i3.xlarge"
       num_workers: 4
     timeout_seconds: 7200
+    schedule:
+      # Daily - churn patterns are stable
+      quartz_cron_expression: "0 0 2 * * SUN"      
 
   - task_key: batch_inference_fraud
     python_wheel_task:
@@ -23,8 +26,11 @@ tasks:
     timeout_seconds: 7200
     depends_on:
       - task_key: batch_inference_churn
+    schedule:
+      # Daily - fraud evolves quickly
+      quartz_cron_expression: "0 0 2 * * *"        
 
-schedule:
-  quartz_cron_expression: "0 0 12 * * ?"
-  timezone_id: "UTC"
-  pause_status: UNPAUSED
+#schedule:
+#  quartz_cron_expression: "0 0 12 * * ?"
+#  timezone_id: "UTC"
+#  pause_status: UNPAUSED
