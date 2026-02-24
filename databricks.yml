@@ -45,9 +45,6 @@ variables:
     default: ngm_mlops-model
   catalog_name:
     description: The catalog name to save the trained model
-  databricks_host:
-    description: Databricks workspace host URL
-    default: ${env:DATABRICKS_HOST}
     
 include:
   # Resources folder contains ML artifact resources for the ML project that defines model and experiment
@@ -72,7 +69,6 @@ targets:
       catalog_name: ngm_ml_rnd
       git_sha: "rnd-build"
     workspace:
-      host: ${var.databricks_host}
       root_path: "~/Repos/ngm_mlops-rnd"
 
   dev:  # Development - for unit testing
@@ -81,7 +77,6 @@ targets:
       catalog_name: dev
       git_sha: "dev-build"
     workspace:
-      host: ${var.databricks_host}
       root_path: ~/Repos/ngm_mlops-dev
 
   uat:  # User Acceptance Testing - for integration testing
@@ -89,7 +84,6 @@ targets:
       catalog_name: uat
       git_sha: "uat-build"
     workspace:
-      host: ${var.databricks_host}
       root_path: /Workspace/Repos/ngm_mlops-uat
 
   preprod:  # Pre-Production - final staging before prod
@@ -97,7 +91,6 @@ targets:
       catalog_name: preprod
       git_sha: "preprod-build"
     workspace:
-      host: ${var.databricks_host}
       root_path: /Workspace/Repos/ngm_mlops-preprod
 
   prod:  # Production - final deployment
@@ -105,5 +98,4 @@ targets:
       catalog_name: prod
       git_sha: "prod-build"
     workspace:
-      host: ${var.databricks_host}
       root_path: /Workspace/Repos/ngm_mlops-prod
