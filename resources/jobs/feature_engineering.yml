@@ -1,32 +1,33 @@
-name: feature_engineering_job
-tasks:
-  - task_key: engineer_features_churn
-    python_wheel_task:
-      package_name: ngm_mlops
-      entry_point: ngm-monitor
-      parameters: ["--model", "churn", "--env", "${var:environment}"]
-    new_cluster:
-      spark_version: "13.3.x-scala2.12"
-      node_type_id: "i3.xlarge"
-      num_workers: 2
-    timeout_seconds: 3600
-    schedule:
-      # Daily - churn patterns are stable
-      quartz_cron_expression: "0 0 2 * * SUN"    
+feature_engineering_job:
+  name: feature_engineering_job
+  tasks:
+    - task_key: engineer_features_churn
+      python_wheel_task:
+        package_name: ngm_mlops
+        entry_point: ngm-monitor
+        parameters: ["--model", "churn", "--env", "${var:environment}"]
+      new_cluster:
+        spark_version: "13.3.x-scala2.12"
+        node_type_id: "i3.xlarge"
+        num_workers: 2
+      timeout_seconds: 3600
+      schedule:
+        # Daily - churn patterns are stable
+        quartz_cron_expression: "0 0 2 * * SUN"
 
-  - task_key: engineer_features_fraud
-    python_wheel_task:
-      package_name: ngm_mlops
-      entry_point: ngm-monitor
-      parameters: ["--model", "fraud", "--env", "${var:environment}"]
-    new_cluster:
-      spark_version: "13.3.x-scala2.12"
-      node_type_id: "i3.xlarge"
-      num_workers: 2
-    timeout_seconds: 3600
-    schedule:
-      # Daily - fraud evolves quickly
-      quartz_cron_expression: "0 0 2 * * *"   
+    - task_key: engineer_features_fraud
+      python_wheel_task:
+        package_name: ngm_mlops
+        entry_point: ngm-monitor
+        parameters: ["--model", "fraud", "--env", "${var:environment}"]
+      new_cluster:
+        spark_version: "13.3.x-scala2.12"
+        node_type_id: "i3.xlarge"
+        num_workers: 2
+      timeout_seconds: 3600
+      schedule:
+        # Daily - fraud evolves quickly
+        quartz_cron_expression: "0 0 2 * * *"
 
 #schedule:
 #  quartz_cron_expression: "0 0 18 * * ?"
