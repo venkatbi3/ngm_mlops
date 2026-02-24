@@ -13,6 +13,6 @@ def test_invalid_config():
         load_model_config("nonexistent_model")
 
 def test_config_validation():
-    """Test that invalid configs raise Pydantic errors."""
-    with pytest.raises(ValueError):
+    """Test that invalid configs raise FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
         load_model_config("bad_config")
