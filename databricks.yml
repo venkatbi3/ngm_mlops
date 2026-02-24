@@ -11,6 +11,29 @@ artifacts:
     path: .
     build: "pip install build && python -m build --wheel"
 
+resources:
+  schemas:
+    features:
+      name: features
+      catalog_name: ${var.catalog_name}
+    
+    predictions:
+      name: predictions
+      catalog_name: ${var.catalog_name}
+    
+    monitoring:
+      name: monitoring
+      catalog_name: ${var.catalog_name}
+  
+  registered_models:
+    churn_model:
+      name: churn_model
+      catalog_name: ${var.catalog_name}
+    
+    fraud_model:
+      name: fraud_model
+      catalog_name: ${var.catalog_name}
+
 variables:
   experiment_name:
     description: Experiment name for the model training.
@@ -47,7 +70,7 @@ targets:
       catalog_name: ngm_ml_rnd
       git_sha: "rnd-build"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net  # Set via env var or CLI: --var="databricks_host=https://..."
+      host: DATABRICKS_HOST_RND #https://adb-1108654228307752.12.azuredatabricks.net  # Set via env var or CLI: --var="databricks_host=https://..."
       root_path:  "~/Repos/ngm_mlops-rnd"
     resources:
       jobs:
@@ -67,7 +90,7 @@ targets:
       git_sha: "dev-build"
       workspace_path: "~/Repos/ngm_mlops-dev"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
+      host: DATABRICKS_HOST_DEV #https://adb-1108654228307752.12.azuredatabricks.net
       root_path: ~/Repos/ngm_mlops-dev
     resources:
       jobs:
@@ -86,7 +109,7 @@ targets:
       git_sha: "uat-build"
       workspace_path: "/Workspace/Repos/ngm_mlops-uat"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
+      host: DATABRICKS_HOST_UAT #https://adb-1108654228307752.12.azuredatabricks.net
       root_path: /Workspace/Repos/ngm_mlops-uat
     resources:
       jobs:
@@ -105,7 +128,7 @@ targets:
       git_sha: "preprod-build"
       workspace_path: "/Workspace/Repos/ngm_mlops-preprod"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
+      host: DATABRICKS_HOST_PREPROD #https://adb-1108654228307752.12.azuredatabricks.net
       root_path: /Workspace/Repos/ngm_mlops-preprod
     resources:
       jobs:
@@ -124,7 +147,7 @@ targets:
       git_sha: "prod-build"
       workspace_path: "/Workspace/Repos/ngm_mlops-prod"
     workspace:
-      host: https://adb-1108654228307752.12.azuredatabricks.net
+      host: DATABRICKS_HOST_PROD #https://adb-1108654228307752.12.azuredatabricks.net
       root_path: /Workspace/Repos/ngm_mlops-prod
     resources:
       jobs:
