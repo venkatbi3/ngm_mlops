@@ -1,13 +1,13 @@
     WITH
     as_of_dates AS (
       SELECT dataset_type,
-      WHEN dataset_type = 'train' THEN GENERATE_DATE_ARRAY('2020-07-01', '2025-01-01', INTERVAL 1 MONTH) -- 3m train 
-      WHEN dataset_type = 'test' THEN GENERATE_DATE_ARRAY('2024-11-01', '2024-11-01', INTERVAL 1 MONTH) -- 3m test
+      WHEN dataset_type = 'train' THEN GENERATE_DATE_ARRAY('{start_date_train}', '{end_date_train', INTERVAL 1 MONTH) -- 3m train 
+      WHEN dataset_type = 'test' THEN GENERATE_DATE_ARRAY('{start_date_test}', '{end_date_test}', INTERVAL 1 MONTH) -- 3m test
     END as as_of_dates)
     ,monthly_repayments AS (
       SELECT ACC_NO
         ,NORM_PYMT
-      FROM src_dwh_source.host_LOAN 
+      FROM src_dwh_source.host_LOAN -- {source_catalog}.{source_schema}
       WHERE (RowEndDate>DATE_SUB(d.as_of_date, INTERVAL 1 DAY ) OR RowEndDate IS NULL)
         AND DATE_SUB(d.as_of_date, INTERVAL 1 DAY ) between RowStartDate AND IFNULL(RowEndDate,CURRENT_DATE())
         AND NORM_PYMT IS NOT NULL
@@ -41,7 +41,7 @@
         ,mai.InactiveMonthsCount
         ,mai.InterestRate
         ,mr.NORM_PYMT AS CurrentMonthlyInstallment 
-      FROM Integration.Account mai
+      FROM Integration.Account mai --{source_catalog}.{source_schema}
       LEFT JOIN monthly_repayments mr
         ON CAST(mai.AccountNumber AS INT64)= mr.ACC_NO
       WHERE mai.EndOfDayDate = DATE_SUB(d.as_of_date, INTERVAL 1 DAY)

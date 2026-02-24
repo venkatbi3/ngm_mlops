@@ -18,10 +18,11 @@ dependencies = [
 ]
 
 [project.scripts]
-ngm-train = "pipelines.train:main"
-ngm-validate = "pipelines.validate:main"
-ngm-inference = "pipelines.inference:main"
-ngm-monitor = "pipelines.monitor:main"
+ngm-train = "ngm_mlops.src.pipelines.train:main"
+ngm-validate = "ngm_mlops.src.pipelines.validate:main"
+ngm-inference = "ngm_mlops.src.pipelines.inference:main"
+ngm-monitor = "ngm_mlops.src.pipelines.monitor:main"
+ngm-drift = "ngm_mlops.src.pipelines.drift_monitor:main"
 
 [tool.setuptools.package-data]
 ngm_mlops = ["py.typed"]

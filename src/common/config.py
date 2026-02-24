@@ -1,24 +1,37 @@
 import os
 import yaml
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field, validator
 
 class DataConfig(BaseModel):
     features_table: str
     label_col: str
+    source_catalog: str = "bigquery_catalog"
+    source_schema: str = "Integration"
+    start_date: str = "2019-10-01"
+    end_date: str = "2025-03-01"
 
 class MetricsConfig(BaseModel):
     auc_threshold: float = Field(ge=0, le=1)
+    min_recall: float = Field(default=0.8, ge=0, le=1)
+    precision_threshold: float = Field(default=0.75, ge=0, le=1)
 
 class HyperparametersConfig(BaseModel):
     n_estimators: int = Field(gt=0)
     max_depth: int = Field(gt=0)
+    min_samples_split: int = Field(default=2, gt=0)
+    min_samples_leaf: int = Field(default=1, gt=0)
+    random_state: int = Field(default=42, ge=0)
 
 class OutputConfig(BaseModel):
     catalog: str
     schema: str
     table: str
+
+class BigQueryConfig(BaseModel):
+    catalog: str = "bigquery_catalog"
+    dataset: str = "Integration"
 
 class ModelConfig(BaseModel):
     model_key: str
@@ -30,6 +43,7 @@ class ModelConfig(BaseModel):
     metrics: MetricsConfig
     hyperparameters: HyperparametersConfig
     output: OutputConfig
+    bigquery: Optional[BigQueryConfig] = None
 
 def load_model_config(model_key: str) -> ModelConfig:
     """Load and validate model configuration."""

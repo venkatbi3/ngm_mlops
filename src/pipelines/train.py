@@ -134,21 +134,28 @@ def main():
             try:
                 logger.info(f"Logging model to MLflow")
                 
-                # Save model using trainer's preferred method
                 artifact_path = "model"
-                model_uri = mlflow.sklearn.log_model(model, artifact_path)
+                mlflow.sklearn.log_model(model, artifact_path)
                 
-                # Register model
-                mlflow.register_model(
-                    model_uri=f"runs:/{run_id}/{artifact_path}",
-                    name=config.registered_model_name
-                )
+                # Register or update model in registry
+                registry = ModelRegistry()
+                try:
+                    registry.register_model(
+                        run_id=run_id,
+                        artifact_path=artifact_path,
+                        model_name=config.registered_model_name
+                    )
+                    logger.info(f"✓ Model registered: {config.registered_model_name}")
+                except Exception as e:
+                    if "already exists" in str(e):
+                        logger.warning(f"Model {config.registered_model_name} already exists, will be versioned")
+                    else:
+                        raise
                 
-                logger.info(f"✓ Model registered: {config.registered_model_name}")
                 mlflow.log_param("model_registered", "true")
                 
             except Exception as e:
-                logger.error(f"Model logging failed: {e}")
+                logger.error(f"Model logging/registration failed: {e}")
                 raise
             
             # Mark run as successful

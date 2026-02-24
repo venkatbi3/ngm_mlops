@@ -10,18 +10,22 @@ inference_class: ChurnInference
 data:
   features_table: "ngm_ml_rnd.features.churn_features"  # Override per environment
   label_col: "churn_label"
-
-features:
-  start_date: "2019-10-01"              # Feature engineering date range
+  source_catalog: "bigquery_catalog"
+  source_schema: "Integration"
+  start_date: "2019-10-01"
   end_date: "2025-03-01"
 
 metrics:
-  auc_threshold: 0.75                   # Min AUC to pass validation
-  min_recall: 0.80                      # For fraud detection
+  auc_threshold: 0.75
+  min_recall: 0.80
+  precision_threshold: 0.75
 
 hyperparameters:
   n_estimators: 100
   max_depth: 15
+  min_samples_split: 2
+  min_samples_leaf: 1
+  random_state: 42
 
 output:
   catalog: "ngm_ml_rnd"  # Override per environment (ngm_ml_dev, ngm_ml_uat, ngm_ml_prod)
@@ -32,10 +36,5 @@ output:
 bigquery:
   catalog: "bigquery_catalog"
   dataset: "Integration"
-
-# Legacy Databricks source (for data pull)
-databricks_source:
-  catalog: "source_catalog"  
-  schema: "raw_data"
 
 
