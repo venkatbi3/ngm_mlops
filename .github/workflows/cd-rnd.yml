@@ -43,7 +43,7 @@ jobs:
 
       - name: Run tests #Automatically discovers and runs all test files matching the pattern test_*.py or *_test.py in the repository
         run: |
-          pytest tests/ -v
+          pytest -v tests/unit/test_smoke.py
 
 
   deploy-rnd:

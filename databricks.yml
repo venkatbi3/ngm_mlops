@@ -37,6 +37,9 @@ variables:
   experiment_name:
     description: Experiment name for the model training.
     default: /Users/${workspace.current_user.userName}/${bundle.target}-ngm_mlops-experiment
+  environment:
+    description: Deployment environment (e.g., rnd, dev, uat, preprod, prod)
+    default: rnd
   git_sha:
     description: "Git commit SHA"
     default: "local"
