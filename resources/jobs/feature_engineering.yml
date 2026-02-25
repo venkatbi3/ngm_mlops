@@ -7,7 +7,7 @@ resources:
           python_wheel_task:
             package_name: ngm_mlops
             entry_point: ngm-monitor
-            parameters: ["--model", "churn", "--env", "${var:environment}"]
+            parameters: ["--model", "churn", "--env", "${var.environment}"]
           new_cluster:
             spark_version: "13.3.x-scala2.12"
             node_type_id: "i3.xlarge"
