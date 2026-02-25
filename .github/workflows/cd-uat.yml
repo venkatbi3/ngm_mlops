@@ -42,6 +42,8 @@ jobs:
         run: |
           echo "=== Databricks CLI Version ==="
           databricks --version
+          echo "Host is set: ${{ secrets.DATABRICKS_HOST != '' }}"
+          echo "Token is set: ${{ secrets.DATABRICKS_TOKEN != '' }}"
 
       - name: Build wheel
         run: python -m build --wheel
