@@ -93,8 +93,8 @@ def main():
             logger.warning(f"⚠️  Drift detected in feature '{col}': z_score={z_score:.2f}")
     
     try:
-        # Write drift metrics using parameterized monitoring catalog
-        monitoring_table = f"{config.output.catalog}.monitoring.{model_key}_drift_metrics"
+        # Write drift metrics to model schema
+        monitoring_table = f"{config.output.catalog}.{config.output.schema}.{model_key}_drift_metrics"
         logger.info(f"Writing drift metrics to {monitoring_table}")
         spark.createDataFrame(drift_metrics) \
             .write.mode("append") \
