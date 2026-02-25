@@ -15,3 +15,4 @@ resources:
           timeout_seconds: 3600
       schedule:
         quartz_cron_expression: "0 0 0 * * ?"
+        timezone_id: "UTC"
