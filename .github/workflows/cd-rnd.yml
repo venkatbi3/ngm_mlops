@@ -98,7 +98,7 @@ jobs:
       - name: Deploy to Databricks
         run: |
           echo "Deploying to Databricks RND environment..."
-          databricks bundle deploy -t rnd \
+          databricks bundle deploy -t rnd --auto-approve \
             --var="git_sha=${{ github.sha }}"
 
       - name: Deployment complete
