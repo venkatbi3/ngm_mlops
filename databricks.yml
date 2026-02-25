@@ -11,6 +11,15 @@ artifacts:
     build: "pip install build && python -m build --wheel"
   
 resources:
+  schemas:
+    churn:
+      name: churn
+      catalog_name: ${var.catalog_name}
+    
+    fraud:
+      name: fraud
+      catalog_name: ${var.catalog_name}
+  
   registered_models:
     churn_model:
       name: churn_model
