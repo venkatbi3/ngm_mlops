@@ -10,10 +10,8 @@ resources:
             parameters: ["--model", "churn", "--env", "${var.environment}"]
           new_cluster:
             spark_version: "13.3.x-scala2.12"
-            node_type_id: "i3.xlarge"
+            node_type_id: "Standard_D8s_v3"
             num_workers: 4
           timeout_seconds: 7200
       schedule:
         quartz_cron_expression: "0 0 12 * * ?"
-        timezone_id: "UTC"
-        pause_status: UNPAUSED

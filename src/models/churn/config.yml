@@ -8,7 +8,7 @@ validator_class: ChurnValidator
 inference_class: ChurnInference
 
 data:
-  features_table: "ngm_ml_rnd.features.churn_features"  # Override per environment
+  features_table: "${var.catalog_name}.churn.churn_features"
   label_col: "churn_label"
   source_catalog: "bigquery_catalog"
   source_schema: "Integration"
@@ -28,8 +28,8 @@ hyperparameters:
   random_state: 42
 
 output:
-  catalog: "ngm_ml_rnd"  # Override per environment (ngm_ml_dev, ngm_ml_uat, ngm_ml_prod)
-  schema: "predictions"
+  catalog: "${var.catalog_name}"
+  schema: "churn"
   table: "churn_scores"
 
 # Data source configuration

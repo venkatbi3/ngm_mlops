@@ -12,26 +12,24 @@ artifacts:
 
 resources:
   schemas:
-    features:
-      name: features
+    churn:
+      name: churn
       catalog_name: ${var.catalog_name}
     
-    predictions:
-      name: predictions
-      catalog_name: ${var.catalog_name}
-    
-    monitoring:
-      name: monitoring
+    fraud:
+      name: fraud
       catalog_name: ${var.catalog_name}
   
   registered_models:
     churn_model:
       name: churn_model
       catalog_name: ${var.catalog_name}
+      schema_name: churn
     
     fraud_model:
       name: fraud_model
       catalog_name: ${var.catalog_name}
+      schema_name: fraud
 
 variables:
   experiment_name:
