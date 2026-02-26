@@ -46,6 +46,7 @@ variables:
     default: ngm_mlops-model
   catalog_name:
     description: The catalog name to save the trained model
+    default: ${bundle.target} # Use target name as default catalog name
     
 include:
   # Resources folder contains ML artifact resources for the ML project that defines model and experiment

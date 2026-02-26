@@ -1,4 +1,4 @@
-name: CD - Prod
+name: CICD - Prod
 
 on:
   workflow_dispatch:

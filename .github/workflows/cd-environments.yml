@@ -1,4 +1,4 @@
-name: CD - Multi-Env Deployment (Manual Trigger thru GitHub UI)
+name: CICD - Multi-Env Deployment (Manual Trigger thru GitHub UI)
 
 on:
   workflow_dispatch: # Manual trigger by a user through GitHub's UI (no automatic runs)

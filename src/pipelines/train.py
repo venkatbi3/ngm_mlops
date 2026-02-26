@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.common.config import load_model_config
 from src.common.logger import get_logger
 from src.common.exceptions import DataLoadError, ModelTrainingError, ConfigError
+from src.models.registry import ModelRegistry
 
 logger = get_logger(__name__)
 
