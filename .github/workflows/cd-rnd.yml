@@ -1,4 +1,4 @@
-name: CI and RND Deploy
+name: CICD - RND
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: CD - UAT
+name: CICD - UAT
 
 on:
   workflow_dispatch:
