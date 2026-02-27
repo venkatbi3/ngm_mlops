@@ -65,7 +65,7 @@ sync:
 # Deployment Target specific values for workspaces
 targets:
   rnd:  # Research & Development - for active development
-    mode: development
+    mode: production
     default: true
     variables:
       catalog_name: ngm_ml_rnd
@@ -74,7 +74,7 @@ targets:
       root_path: "~/Repos/ngm_mlops-rnd"
 
   dev:  # Development - for unit testing
-    mode: development
+    mode: production
     variables:
       catalog_name: dev
       git_sha: "dev-build"
@@ -82,6 +82,7 @@ targets:
       root_path: ~/Repos/ngm_mlops-dev
 
   uat:  # User Acceptance Testing - for integration testing
+    mode: production
     variables:
       catalog_name: uat
       git_sha: "uat-build"
@@ -89,6 +90,7 @@ targets:
       root_path: /Workspace/Repos/ngm_mlops-uat
 
   preprod:  # Pre-Production - final staging before prod
+    mode: production
     variables:
       catalog_name: preprod
       git_sha: "preprod-build"
@@ -96,6 +98,7 @@ targets:
       root_path: /Workspace/Repos/ngm_mlops-preprod
 
   prod:  # Production - final deployment
+    mode: production
     variables:
       catalog_name: prod
       git_sha: "prod-build"
