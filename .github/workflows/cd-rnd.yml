@@ -5,8 +5,6 @@ on:
     branches: [ rnd ]
   pull_request:
     branches: [ rnd ]
-  pull_request:
-    branches: [ rnd ]
 
 env:
   # Get Databricks host from GitHub secrets or use default
