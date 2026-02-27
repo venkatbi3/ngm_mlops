@@ -7,10 +7,10 @@ from pydantic import BaseModel, Field, validator
 class DataConfig(BaseModel):
     features_table: str
     label_col: str
-    source_catalog: str = "bigquery_catalog"
-    source_schema: str = "Integration"
-    start_date: str = "2019-10-01"
-    end_date: str = "2025-03-01"
+    source_catalog: str  # Required - must be specified in model config
+    source_schema: str   # Required - must be specified in model config
+    start_date: str      # Required - must be specified in model config
+    end_date: str        # Required - must be specified in model config
 
 class MetricsConfig(BaseModel):
     auc_threshold: float = Field(ge=0, le=1)
@@ -30,8 +30,8 @@ class OutputConfig(BaseModel):
     table: str
 
 class BigQueryConfig(BaseModel):
-    catalog: str = "bigquery_catalog"
-    dataset: str = "Integration"
+    catalog: str      # BigQuery catalog name
+    dataset: str      # BigQuery dataset name
 
 class ModelConfig(BaseModel):
     model_key: str

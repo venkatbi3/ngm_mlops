@@ -15,15 +15,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.common.config import load_model_config
-from src.common.logger import get_logger
-from src.common.exceptions import DataLoadError, ModelTrainingError, ConfigError
+from src.common.logger import get_logger, setup_logging, log_with_context, log_performance
+from src.common.exceptions import DataLoadError, ModelTrainingError, ConfigError, ImportErrorSafe
 from src.models.registry import ModelRegistry
+import time
 
 logger = get_logger(__name__)
 
 
 def main():
     """Main training pipeline."""
+    # Configure logging
+    log_dir = os.getenv("PIPELINE_LOG_DIR", "logs")
+    setup_logging(log_dir=log_dir, level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Train ML models",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -37,24 +41,36 @@ def main():
     parser.add_argument(
         "--env",
         type=str,
-        default="dev",
-        choices=["dev", "uat", "preprod", "prod"],
-        help="Environment to train in (default: dev)"
+        default="rnd",
+        choices=["rnd", "dev", "uat", "preprod", "prod"],
+        help="Environment to train in (default: rnd)"
     )
     
     args = parser.parse_args()
     model_key = args.model
     environment = args.env
+    pipeline_start = time.time()
     
-    logger.info(f"Starting training pipeline for model: {model_key} in {environment}")
+    log_with_context(
+        logger, logging.INFO,
+        "Starting training pipeline",
+        {"model_key": model_key, "environment": environment, "timestamp": datetime.now().isoformat()}
+    )
     
     # Load configuration
     try:
         config = load_model_config(model_key)
         logger.info(f"✓ Loaded config for {model_key}")
+    except FileNotFoundError as e:
+        log_with_context(
+            logger, logging.ERROR,
+            "Config file not found",
+            {"model_key": model_key, "error": str(e)}
+        )
+        raise ConfigError(f"Config not found for {model_key}", config_path=f"src/models/{model_key}/config.yml") from e
     except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        raise ConfigError(f"Config load failed for {model_key}") from e
+        logger.error(f"Failed to load config: {e}", exc_info=True)
+        raise ConfigError(f"Config load failed for {model_key}", context={"error": str(e)}) from e
     
     # Initialize MLflow
     experiment_name = f"/Users/{os.getenv('USER', 'mluser')}/{model_key}-training"
@@ -79,57 +95,87 @@ def main():
                 trainer_module = importlib.import_module(f"src.models.{model_key}.trainer")
                 trainer_cls = getattr(trainer_module, config.trainer_class)
                 logger.info(f"✓ Loaded trainer class: {config.trainer_class}")
-            except Exception as e:
-                logger.error(f"Failed to import trainer: {e}")
+            except (ImportError, AttributeError) as e:
+                log_with_context(
+                    logger, logging.ERROR,
+                    "Trainer import failed",
+                    {"model_key": model_key, "trainer_class": config.trainer_class, "error": str(e)}
+                )
                 mlflow.end_run(status="FAILED")
-                raise ConfigError(f"Trainer import failed: {e}") from e
+                raise ImportErrorSafe(f"Trainer import failed: {e}", module=f"src.models.{model_key}.trainer", attribute=config.trainer_class) from e
             
             # Initialize trainer
             trainer = trainer_cls(config)
             
             # Load data
+            data_start = time.time()
             try:
                 logger.info(f"Loading data from {config.data.features_table}")
                 X, y = trainer.load_data()
                 
                 if len(X) == 0:
-                    raise DataLoadError("No training data loaded")
+                    raise DataLoadError("No training data loaded", table=config.data.features_table)
                 
-                logger.info(f"✓ Loaded {len(X):,} samples, {X.shape[1]} features")
+                data_duration = time.time() - data_start
+                log_with_context(
+                    logger, logging.INFO,
+                    f"Data loaded successfully",
+                    {"samples": len(X), "features": X.shape[1], "duration_seconds": round(data_duration, 2)}
+                )
                 mlflow.log_metric("training_samples", len(X))
                 mlflow.log_metric("feature_count", X.shape[1])
+                log_performance(logger, "data_loading", data_duration * 1000)
                 
-            except Exception as e:
-                logger.error(f"Data loading failed: {e}")
+            except DataLoadError as e:
+                logger.error(f"Data loading failed: {e}", exc_info=True)
                 mlflow.end_run(status="FAILED")
-                raise DataLoadError(f"Failed to load training data: {e}") from e
+                raise
+            except Exception as e:
+                logger.error(f"Data loading failed: {e}", exc_info=True)
+                mlflow.end_run(status="FAILED")
+                raise DataLoadError(f"Failed to load training data", table=config.data.features_table, context={"error": str(e)}) from e
             
             # Train model
+            training_start = time.time()
             try:
                 logger.info("Starting model training")
                 model = trainer.train()
-                logger.info("✓ Model training completed")
+                training_duration = time.time() - training_start
+                
+                log_with_context(
+                    logger, logging.INFO,
+                    "Model training completed",
+                    {"model_key": model_key, "duration_seconds": round(training_duration, 2)}
+                )
                 mlflow.log_param("status", "training_complete")
+                log_performance(logger, "model_training", training_duration * 1000)
                 
             except Exception as e:
-                logger.error(f"Training failed: {e}")
+                logger.error(f"Training failed: {e}", exc_info=True)
                 mlflow.end_run(status="FAILED")
-                raise ModelTrainingError(f"Training failed: {e}") from e
+                raise ModelTrainingError(f"Training failed", model_key=model_key, context={"error": str(e)}) from e
             
             # Evaluate model
+            eval_start = time.time()
             try:
                 logger.info("Evaluating model")
                 metrics = trainer.evaluate(model)
+                eval_duration = time.time() - eval_start
                 
                 for metric_name, metric_value in metrics.items():
                     mlflow.log_metric(metric_name, metric_value)
                     logger.info(f"  {metric_name}: {metric_value:.4f}")
                 
-                logger.info("✓ Model evaluation completed")
+                log_with_context(
+                    logger, logging.INFO,
+                    "Model evaluation completed",
+                    {"metrics": metrics, "duration_seconds": round(eval_duration, 2)}
+                )
+                log_performance(logger, "model_evaluation", eval_duration * 1000)
                 
             except Exception as e:
-                logger.error(f"Evaluation failed: {e}")
-                raise
+                logger.error(f"Evaluation failed: {e}", exc_info=True)
+                raise ModelTrainingError(f"Evaluation failed", model_key=model_key, context={"error": str(e)}) from e
             
             # Log model artifact
             try:
@@ -161,10 +207,21 @@ def main():
             
             # Mark run as successful
             mlflow.set_tag("status", "success")
-            logger.info(f"✅ Training pipeline completed. Run ID: {run_id}")
+            total_duration = time.time() - pipeline_start
+            log_with_context(
+                logger, logging.INFO,
+                "Training pipeline completed successfully",
+                {"run_id": run_id, "model_key": model_key, "total_duration_seconds": round(total_duration, 2)}
+            )
+            log_performance(logger, "training_pipeline_total", total_duration * 1000)
             
         except Exception as e:
-            logger.error(f"Pipeline failed: {e}", exc_info=True)
+            total_duration = time.time() - pipeline_start
+            log_with_context(
+                logger, logging.ERROR,
+                "Training pipeline failed",
+                {"model_key": model_key, "error": str(e), "duration_seconds": round(total_duration, 2)}
+            )
             mlflow.end_run(status="FAILED")
             sys.exit(1)
 

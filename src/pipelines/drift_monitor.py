@@ -3,6 +3,9 @@ Model drift monitoring pipeline. Compares recent data statistics to baseline and
 """
 import argparse
 import sys
+import logging
+import os
+import time
 from pathlib import Path
 
 # Add src to path for imports
@@ -13,13 +16,19 @@ import yaml
 from pyspark.sql import SparkSession
 import numpy as np
 from src.common.config import load_model_config
-from src.common.logger import get_logger
+from src.common.logger import get_logger, setup_logging, log_with_context, log_performance
+from src.common.exceptions import DataLoadError, ConfigError
 
 logger = get_logger(__name__)
 
 
 def main():
     """Main drift monitoring pipeline."""
+    # Configure logging
+    log_dir = os.getenv("PIPELINE_LOG_DIR", "logs")
+    setup_logging(log_dir=log_dir, level=logging.INFO)
+    
+    pipeline_start = time.time()
     parser = argparse.ArgumentParser(
         description="Monitor model drift",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -42,11 +51,23 @@ def main():
     model_key = args.model
     environment = args.env
     
-    logger.info(f"Starting drift monitoring for model: {model_key} in {environment}")
+    log_with_context(
+        logger, logging.INFO,
+        "Starting drift monitoring",
+        {"model_key": model_key, "environment": environment}
+    )
     
     spark = SparkSession.builder.getOrCreate()
     
-    config = load_model_config(model_key)
+    try:
+        config = load_model_config(model_key)
+    except FileNotFoundError as e:
+        log_with_context(
+            logger, logging.ERROR,
+            "Config file not found",
+            {"model_key": model_key, "error": str(e)}
+        )
+        raise ConfigError(f"Config not found for {model_key}", config_path=f"src/models/{model_key}/config.yml") from e
     
     model_name = config.registered_model_name
     model_uri = f"models:/{model_name}@Champion"
@@ -60,19 +81,36 @@ def main():
         )
         logger.info("✓ Loaded baseline statistics")
     except Exception as e:
-        logger.error(f"Failed to load baseline: {e}")
-        raise
+        log_with_context(
+            logger, logging.ERROR,
+            "Failed to load baseline statistics",
+            {"model_name": model_name, "error": str(e)}
+        )
+        raise DataLoadError(f"Failed to load baseline statistics", context={"model_uri": model_uri, "error": str(e)}) from e
     
     try:
         # Load recent scored data using parameterized output catalog
         scores_table = f"{config.output.catalog}.{config.output.schema}.{config.output.table}"
         logger.info(f"Loading scored data from {scores_table}")
+        
+        load_start = time.time()
         df = spark.table(scores_table)
         pdf = df.toPandas()
-        logger.info(f"✓ Loaded {len(pdf):,} scored records")
+        load_duration = time.time() - load_start
+        
+        log_with_context(
+            logger, logging.INFO,
+            "Scored data loaded",
+            {"table": scores_table, "row_count": len(pdf), "duration_seconds": round(load_duration, 2)}
+        )
+        log_performance(logger, "drift_data_loading", load_duration * 1000)
     except Exception as e:
-        logger.error(f"Failed to load scored data: {e}")
-        raise
+        log_with_context(
+            logger, logging.ERROR,
+            "Failed to load scored data",
+            {"table": scores_table, "error": str(e)}
+        )
+        raise DataLoadError(f"Failed to load scored data", context={"table": scores_table, "error": str(e)}) from e
     
     drift_metrics = []
     

@@ -7,8 +7,9 @@ from typing import Tuple, Dict
 from scipy.stats import ks_2samp, chi2_contingency
 import pandas as pd
 import numpy as np
+from src.common.logger import get_logger, log_with_context
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def ks_drift(baseline: np.ndarray, current: np.ndarray, p_threshold: float = 0.05) -> bool:
@@ -30,10 +31,12 @@ def ks_drift(baseline: np.ndarray, current: np.ndarray, p_threshold: float = 0.0
     statistic, p_value = ks_2samp(baseline, current)
     drift_detected = p_value < p_threshold
     
-    if drift_detected:
-        logger.warning(f"KS Drift detected: statistic={statistic:.4f}, p-value={p_value:.6f}")
-    else:
-        logger.info(f"No KS drift: statistic={statistic:.4f}, p-value={p_value:.6f}")
+    log_with_context(
+        logger,
+        logging.WARNING if drift_detected else logging.INFO,
+        "KS test completed",
+        {"statistic": round(statistic, 4), "p_value": round(p_value, 6), "drift_detected": drift_detected, "threshold": p_threshold}
+    )
     
     return drift_detected
 
@@ -61,14 +64,16 @@ def chi_square_drift(baseline: pd.Series, current: pd.Series, p_threshold: float
         
         drift_detected = p_value < p_threshold
         
-        if drift_detected:
-            logger.warning(f"Chi-square drift detected: chi2={chi2:.4f}, p-value={p_value:.6f}")
-        else:
-            logger.info(f"No categorical drift: chi2={chi2:.4f}, p-value={p_value:.6f}")
+        log_with_context(
+            logger,
+            logging.WARNING if drift_detected else logging.INFO,
+            "Chi-square test completed",
+            {"chi2": round(chi2, 4), "p_value": round(p_value, 6), "drift_detected": drift_detected, "dof": dof}
+        )
         
         return drift_detected
     except Exception as e:
-        logger.error(f"Chi-square test failed: {e}")
+        logger.error(f"Chi-square test failed: {e}", exc_info=True)
         return False
 
 

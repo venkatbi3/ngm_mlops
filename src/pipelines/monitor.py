@@ -5,6 +5,9 @@ Periodically evaluates model performance on new data and logs metrics to MLflow.
 import argparse
 import sys
 import importlib
+import logging
+import os
+import time
 from pathlib import Path
 
 # Add src to path for imports
@@ -12,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import mlflow
 from src.common.config import load_model_config
-from src.common.logger import get_logger
+from src.common.logger import get_logger, setup_logging, log_with_context, log_performance
 from src.common.exceptions import ConfigError, ImportErrorSafe
 
 logger = get_logger(__name__)
@@ -20,6 +23,11 @@ logger = get_logger(__name__)
 
 def main():
     """Main monitoring and feature engineering pipeline."""
+    # Configure logging
+    log_dir = os.getenv("PIPELINE_LOG_DIR", "logs")
+    setup_logging(log_dir=log_dir, level=logging.INFO)
+    
+    pipeline_start = time.time()
     parser = argparse.ArgumentParser(
         description="Monitor models and engineer features",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -42,15 +50,26 @@ def main():
     model_key = args.model
     environment = args.env
     
-    logger.info(f"Starting monitoring pipeline for model: {model_key} in {environment}")
+    log_with_context(
+        logger, logging.INFO,
+        "Starting monitoring pipeline",
+        {"model_key": model_key, "environment": environment}
+    )
     
     # Load configuration
     try:
         config = load_model_config(model_key)
         logger.info(f"✓ Loaded config for {model_key}")
+    except FileNotFoundError as e:
+        log_with_context(
+            logger, logging.ERROR,
+            "Config file not found",
+            {"model_key": model_key, "error": str(e)}
+        )
+        raise ConfigError(f"Config not found for {model_key}", config_path=f"src/models/{model_key}/config.yml") from e
     except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        raise ConfigError(f"Config load failed for {model_key}") from e
+        logger.error(f"Failed to load config: {e}", exc_info=True)
+        raise ConfigError(f"Config load failed for {model_key}", context={"error": str(e)}) from e
     
     with mlflow.start_run(run_name=f"monitor-{model_key}"):
         # Log parameters
@@ -91,10 +110,21 @@ def main():
             mlflow.log_param("validator_class", config.validator_class)
             mlflow.log_param("inference_class", config.inference_class)
             
-            logger.info(f"✅ Monitoring pipeline completed for {model_key}")
+            total_duration = time.time() - pipeline_start
+            log_with_context(
+                logger, logging.INFO,
+                "Monitoring pipeline completed",
+                {"model_key": model_key, "duration_seconds": round(total_duration, 2)}
+            )
+            log_performance(logger, "monitoring_pipeline", total_duration * 1000)
             
         except Exception as e:
             logger.error(f"Monitoring pipeline failed: {e}", exc_info=True)
+            log_with_context(
+                logger, logging.ERROR,
+                "Monitoring pipeline failed",
+                {"model_key": model_key, "error": str(e)}
+            )
             mlflow.end_run(status="FAILED")
             sys.exit(1)
 
