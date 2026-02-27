@@ -11,14 +11,16 @@ artifacts:
     build: "pip install build && python -m build --wheel"
   
 resources:
-  schemas:
-    churn:
-      name: churn
-      catalog_name: ${var.catalog_name}
-    
-    fraud:
-      name: fraud
-      catalog_name: ${var.catalog_name}
+  # Schemas are manually created and managed in Databricks
+  # They are not managed by this bundle to avoid conflicts
+  # schemas:
+  #   churn:
+  #     name: churn
+  #     catalog_name: ${var.catalog_name}
+  #   
+  #   fraud:
+  #     name: fraud
+  #     catalog_name: ${var.catalog_name}
   
   registered_models:
     churn_model:

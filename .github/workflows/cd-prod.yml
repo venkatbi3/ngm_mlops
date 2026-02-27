@@ -8,6 +8,8 @@ on:
         required: false
   push:
     branches: [ prod ]
+  pull_request:
+    branches: [ prod ]
 
 env:
   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} 

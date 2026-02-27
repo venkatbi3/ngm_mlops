@@ -7,8 +7,8 @@ on:
         description: 'Git SHA to deploy (defaults to HEAD)'
         required: false
   push:
+    branches: [ preprod ]  pull_request:
     branches: [ preprod ]
-
 env:
   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}  # For Personal Access Token authentication
