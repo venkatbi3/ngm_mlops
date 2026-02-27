@@ -8,7 +8,11 @@ on:
 
 env:
   # Get Databricks host from GitHub secrets or use default
-  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_RND }} #${{ secrets.DATABRICKS_HOST_RND || 'https://adb-xxxx.xx.azuredatabricks.net' }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_RND }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}  # For Personal Access Token authentication
+  #DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }} # For Service Princial authentication
+  #DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}  # For Service Princial authentication
+ # DATABRICKS_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}  # For Service Princial authentication    
 
 jobs:
   test:
@@ -53,9 +57,6 @@ jobs:
     if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped') && github.event_name == 'push' && github.ref == 'refs/heads/rnd' # Only on rnd branch AND if tests passed
     #if: github.ref == 'refs/heads/rnd' && success() # Only on rnd branch AND if tests passed
 
-    env:
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,12 +75,15 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main        
 
-      - name: Verify Databricks CLI
+      - name: Verify Databricks CLI and Environment Variables
         run: |
           echo "=== Databricks CLI Version ==="
           databricks --version
           echo "=== Databricks Host ==="
-          echo "Host: ${{ env.DATABRICKS_HOST }}"
+          echo "DATABRICKS_HOST is set: ${{ env.DATABRICKS_HOST != '' }}"
+          echo "DATABRICKS_CLIENT_ID is set: ${{ env.DATABRICKS_CLIENT_ID != '' }}"
+          echo "DATABRICKS_TENANT_ID is set: ${{ env.DATABRICKS_TENANT_ID != '' }}"
+          echo "DATABRICKS_CLIENT_SECRET is set: ${{ env.DATABRICKS_CLIENT_SECRET != '' }}"          
 
       - name: Validate imports
         run: |

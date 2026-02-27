@@ -10,19 +10,16 @@ on:
     branches: [ prod ]
 
 env:
-  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} #${{ secrets.DATABRICKS_HOST_PROD || 'https://adb-xxxx.xx.azuredatabricks.net' }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} 
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}  # For Personal Access Token authentication
+  #DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }} # For Service Princial authentication
+  #DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}  # For Service Princial authentication
+ # DATABRICKS_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}  # For Service Princial authentication    
 
 jobs:
   deploy-prod:
     name: Deploy to Prod
     runs-on: ubuntu-latest
-
-    environment:
-      name: production
-      url: https://databricks.com
-
-    env:
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
       - name: Checkout
@@ -42,10 +39,15 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main    
 
-      - name: Verify Databricks CLI
+      - name: Verify Databricks CLI and Environment Variables
         run: |
           echo "=== Databricks CLI Version ==="
           databricks --version
+          echo "=== Databricks Host ==="
+          echo "DATABRICKS_HOST is set: ${{ env.DATABRICKS_HOST != '' }}"
+          echo "DATABRICKS_CLIENT_ID is set: ${{ env.DATABRICKS_CLIENT_ID != '' }}"
+          echo "DATABRICKS_TENANT_ID is set: ${{ env.DATABRICKS_TENANT_ID != '' }}"
+          echo "DATABRICKS_CLIENT_SECRET is set: ${{ env.DATABRICKS_CLIENT_SECRET != '' }}"  
 
       - name: Build wheel
         run: python -m build --wheel
