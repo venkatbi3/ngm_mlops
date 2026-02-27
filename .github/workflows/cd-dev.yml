@@ -3,6 +3,8 @@ name: CICD - Dev
 on:
   push:
     branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
 
 env:
   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }} #${{ secrets.DATABRICKS_HOST_DEV }}
