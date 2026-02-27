@@ -4,8 +4,9 @@ Data quality checks for ML pipelines.
 import logging
 from typing import Dict, List, Tuple
 from pyspark.sql import DataFrame
+from src.common.logger import get_logger, log_with_context
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DataQualityChecker:
@@ -35,7 +36,11 @@ class DataQualityChecker:
             
             if null_pct > max_null_pct:
                 is_valid = False
-                logger.warning(f"Column {col}: {null_pct:.1%} nulls (threshold: {max_null_pct:.1%})")
+                log_with_context(
+                    logger, logging.WARNING,
+                    "Excessive null values detected",
+                    {"column": col, "null_percentage": round(null_pct * 100, 2), "threshold": max_null_pct * 100}
+                )
             
             report[col] = {
                 "null_count": null_count,
@@ -63,7 +68,11 @@ class DataQualityChecker:
         is_valid = duplicate_count == 0
         
         if not is_valid:
-            logger.warning(f"Found {duplicate_count} duplicate rows ({duplicate_pct:.1%})")
+            log_with_context(
+                logger, logging.WARNING,
+                "Duplicate rows detected",
+                {"duplicate_count": duplicate_count, "duplicate_percentage": round(duplicate_pct * 100, 2), "key_columns": key_columns}
+            )
         
         return is_valid, {
             "total_rows": total_rows,
